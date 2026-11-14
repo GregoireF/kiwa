@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# cooldown: a new release waits 7 days before Dependabot proposes it, so a hijacked release
+# is usually caught and yanked before it reaches us (zizmor: dependabot-cooldown).
+# Security updates ignore the cooldown. Minor and patch bumps are grouped per ecosystem; a
+# major bump keeps its own pull request. Titles follow the ship-it conventions.
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      cargo:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: "📦️ build"
+      include: scope
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: "👷 ci"
+      include: scope

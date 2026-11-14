@@ -1,0 +1,12 @@
+{
+  "version": "0.2",
+  "language": "en,en-GB",
+  "ignorePaths": ["target", "fuzz/target", "Cargo.lock", "*.svg", ".internal"],
+  "words": [
+    "kiwa", "xtask", "clippy", "rustfmt", "gitmoji", "frecency", "nucleo", "ratatui", "crossterm",
+    "mintty", "corepack", "pnpm", "justfile", "taskfile", "rakefile", "gradlew", "mvnw", "dotnet",
+    "zizmor", "actionlint", "codeql", "cyclonedx", "msvc", "aarch", "musl", "kcd", "nushell",
+    "elvish", "pwsh", "conhost", "winget", "devbox", "devenv", "Diátaxis", "nocapture", "refront",
+    "berry", "shrinkwrap", "npmrc", "KDL", "kdl", "SBOM", "MSRV", "vite", "deno", "uvx", "npx", "gregoiref", "GregoireF"
+  ]
+}

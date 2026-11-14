@@ -1,0 +1,7 @@
+# Run with hot reload
+watch:
+  cargo watch -x run
+
+# Load test the gateway
+bench:
+  oha http://localhost:8080

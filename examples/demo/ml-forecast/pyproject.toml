@@ -1,0 +1,10 @@
+[project]
+name = "ml-forecast"
+version = "0.1.0"
+
+[project.scripts]
+forecast = "forecast.cli:main"
+
+[tool.poe.tasks]
+train = "python -m forecast.train"
+notebook = "jupyter lab"

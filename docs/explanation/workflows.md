@@ -1,0 +1,30 @@
+# CI and release workflows
+
+Every workflow follows the same rules, taken from GregoireF/ship-it:
+
+- `permissions: {}` at the top; each job asks for the minimum, with a comment saying why.
+- Every action pinned by full commit SHA with its version in a comment; Dependabot proposes
+  updates after a 7-day cooldown; tools Dependabot cannot see are marked `# pin:` and watched
+  by `outdated.yml` (`cargo xtask outdated`).
+- `persist-credentials: false`, a `timeout-minutes` and a `concurrency` group on every job.
+- No job both runs repository code and holds a token that can write: the jobs that write
+  issues only read artifacts or outputs.
+- Code-scanning jobs are gated by the repository variable `CODE_SCANNING`.
+
+| Workflow | When | What |
+|---|---|---|
+| `ci.yml` | pull request, main | fmt + clippy, tests on 3 OSes, **real npm / pnpm / Yarn 1 / Yarn 4 / Bun** on 3 OSes, 90 % coverage gate, performance budgets, MSRV; one required `ci passed` check |
+| `zizmor.yml` | pull request, main | workflow security (zizmor) and correctness (actionlint) |
+| `pr-title.yml` | pull request | title conventions, with ship-it's `check-title` action |
+| `dco.yml` | pull request | `Signed-off-by` on every commit |
+| `triage.yml` | pull request, issues, hourly | labels from title and paths (`ship label`), welcome for first-time contributors |
+| `labels.yml` | `.github/ship.json` changes | labels as code (`ship sync`) |
+| `stale.yml` | daily | marks idle issues (closed 30 days later), marks idle pull requests (never closed), locks old threads |
+| `codeql.yml`, `dependency-review.yml`, `scorecard.yml` | pull request, weekly | code scanning, vulnerable dependencies, OpenSSF Scorecard |
+| `outdated.yml` | weekly | pinned tools behind their latest release → one tracking issue |
+| `nightly.yml` | daily | the whole suite with that day's runner images; one issue on failure |
+| `fuzz.yml` | weekly | 10 minutes per parser fuzz target; one issue per crash |
+| `release.yml` + `publish-tap.yml` | `v*` tag | dist build, SBOM, provenance, GitHub release, Homebrew + Scoop tap |
+
+The same checks run locally: `cargo xtask check` (fmt, clippy, tests, coverage gate),
+`cargo xtask bench` (budgets), `cargo test -p kiwa --test real_pm` (real package managers).

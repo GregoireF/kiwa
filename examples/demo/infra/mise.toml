@@ -1,0 +1,6 @@
+[tools]
+terraform = "1.9"
+
+[tasks.fmt]
+description = "Format all HCL"
+run = "terraform fmt -recursive"

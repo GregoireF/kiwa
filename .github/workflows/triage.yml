@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# Labels pull requests from their title and changed paths (`ship label`), and welcomes
+# first-time contributors. No `pull_request_target`: pull requests from forks are labelled
+# by the hourly run, whose code comes from main.
+name: triage
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issues:
+    types: [opened]
+  schedule:
+    - cron: "29 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: triage-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: label pull requests
+    if: >-
+      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write # list pull requests and their files, and label them
+      issues: write # labels on issues
+    steps:
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache: false
+      - name: install ship
+        run: go install github.com/GregoireF/ship-it/cmd/ship@v0.1.0 # pin: ship
+      - name: label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+          if [ -n "$PR" ]; then
+            numbers="$PR"
+          else
+            numbers="$(gh pr list --state open --limit 100 --json number --jq '.[].number')"
+          fi
+          status=0
+          for n in $numbers; do
+            ship label --pr "$n" || status=1
+          done
+          exit "$status"
+
+  welcome:
+    name: welcome first-time contributors
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write # comment on a new issue
+      pull-requests: write # comment on a pull request
+    steps:
+      - name: welcome
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          ISSUE: ${{ github.event.issue.number }}
+          ASSOCIATION: ${{ github.event.issue.author_association }}
+          CONTRIBUTING: ${{ github.server_url }}/${{ github.repository }}/blob/HEAD/CONTRIBUTING.md
+        run: |
+          set -euo pipefail
+          marker='<!-- kiwa:welcome -->'
+          body="$marker
+          Thank you for your first contribution to kiwa! A maintainer will look at it soon.
+          Please read [CONTRIBUTING.md]($CONTRIBUTING): commits are signed off (\`git commit -s\`) and titles follow the ship-it conventions (\`✨ feat: …\`)."
+          first() { [ "$1" = FIRST_TIMER ] || [ "$1" = FIRST_TIME_CONTRIBUTOR ]; }
+          if [ "$EVENT" = issues ]; then
+            if first "$ASSOCIATION"; then gh issue comment "$ISSUE" --body "$body"; fi
+            exit 0
+          fi
+          gh api "repos/$GH_REPO/pulls?state=open&per_page=100" \
+            --jq '.[] | select(.author_association == "FIRST_TIMER" or .author_association == "FIRST_TIME_CONTRIBUTOR") | .number' |
+          while read -r n; do
+            if gh api "repos/$GH_REPO/issues/$n/comments?per_page=100" --jq '.[].body' | grep -qF "$marker"; then
+              continue
+            fi
+            gh pr comment "$n" --body "$body"
+          done

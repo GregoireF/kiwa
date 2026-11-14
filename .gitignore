@@ -1,0 +1,18 @@
+/target
+**/*.rs.bk
+*.pdb
+
+# Internal research, decisions and benchmarks: never versioned or published
+/.internal/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# cargo-fuzz output
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/Cargo.lock

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/GregoireF/ship-it/main/schemas/ship.schema.json",
+  // kiwa's settings for ship-it: `ship sync` (labels.yml) creates one area/ label per part
+  // of the product, so a contributor can filter what they know.
+  "github": {
+    "labels": {
+      "areas": [
+        "discovery",
+        "containers",
+        "onboarding",
+        "picker",
+        "cli",
+        "config",
+        "shell",
+        "agents",
+        "release",
+        "ci",
+        "docs",
+        "perf"
+      ]
+    }
+  }
+}

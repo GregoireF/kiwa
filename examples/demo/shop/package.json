@@ -1,0 +1,1 @@
+{ "name": "shop", "description": "A pnpm and Turborepo shop: storefront, admin and the services they need.", "private": true, "packageManager": "pnpm@9.12.0", "scripts": { "dev": "turbo dev", "build": "turbo build", "lint": "biome check ." } }

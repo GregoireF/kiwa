@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# One catch-all owner: no pull request is left without a reviewer. Add per-directory owners
+# below it once there is more than one maintainer (the last matching line wins).
+* @GregoireF

@@ -1,0 +1,1 @@
+{ "name": "acme/cms", "scripts": { "test": "phpunit", "serve": "php -S localhost:8000" }, "scripts-descriptions": { "serve": "Start the dev server" } }

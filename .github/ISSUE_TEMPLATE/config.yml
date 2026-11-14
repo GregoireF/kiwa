@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# No blank issues: every issue goes through a form. Questions go to Discussions and
+# vulnerabilities to private reporting (SECURITY.md).
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/GregoireF/kiwa/security/advisories/new
+    about: Privately, through GitHub's private vulnerability reporting. Never in a public issue.
+  - name: Ask a question
+    url: https://github.com/GregoireF/kiwa/discussions/categories/q-a
+    about: How do I…? Is this expected?

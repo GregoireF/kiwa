@@ -1,0 +1,50 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "xtask"]
+# cargo-fuzz targets need a nightly toolchain: kept out of the workspace (fuzz/README.md).
+exclude = ["fuzz"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+authors = ["kiwa contributors"]
+repository = "https://github.com/GregoireF/kiwa"
+homepage = "https://github.com/GregoireF/kiwa"
+keywords = ["workspace", "cli", "task-runner", "monorepo", "mcp"]
+categories = ["command-line-utilities", "development-tools"]
+
+[workspace.dependencies]
+kiwa-core = { path = "crates/kiwa-core", version = "0.1.0" }
+anyhow = "1"
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5"
+clap_complete_nushell = "4.5"
+ctrlc = "3"
+dirs = "6"
+# Already built as a dependency of `ignore`; used directly for workspace member globs.
+globset = { version = "0.4", default-features = false }
+ignore = "0.4"
+kdl = "6"
+nucleo-matcher = "0.3"
+ratatui = "0.29"
+rayon = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+tempfile = "3"
+toml = "0.8"
+unicode-width = "0.2"
+which = "7"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"

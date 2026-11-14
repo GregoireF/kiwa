@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# Labels as code: `ship sync` creates and updates the labels described by .github/ship.json
+# (areas, kinds, release labels). It never deletes one.
+name: labels
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/ship.json", ".github/workflows/labels.yml"]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: labels
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: sync labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write # create and update the repository's labels
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache: false
+      - name: install ship
+        run: go install github.com/GregoireF/ship-it/cmd/ship@v0.1.0 # pin: ship
+      - name: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ship sync --yes

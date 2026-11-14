@@ -1,0 +1,143 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# Called by the dist release workflow (dist-workspace.toml: publish-jobs = ["./publish-tap"])
+# with the release plan. Writes Formula/kiwa.rb and bucket/kiwa.json into the public
+# GregoireF/homebrew-tap, which serves Homebrew and Scoop from one repository:
+#   brew install gregoiref/tap/kiwa
+#   scoop bucket add gregoiref https://github.com/GregoireF/homebrew-tap; scoop install kiwa
+# The job token only reaches this repository, so the push to the tap uses an SSH deploy key
+# (environment secret HOMEBREW_TAP_SSH_KEY of the `release` environment), the same setup as
+# GregoireF/ship-it. Pre-releases (v0.1.0-rc.1) never update the tap.
+name: publish-tap
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  tap:
+    name: Homebrew formula and Scoop manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: release
+    permissions:
+      contents: read # download the release's archives and checksums
+    env:
+      PLAN: ${{ inputs.plan }}
+    steps:
+      - name: read the plan
+        id: meta
+        run: |
+          set -euo pipefail
+          {
+            echo "tag=$(jq -r '.announcement_tag' <<<"$PLAN")"
+            echo "prerelease=$(jq -r '.announcement_is_prerelease' <<<"$PLAN")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: write and push the formula and the manifest
+        if: steps.meta.outputs.prerelease == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          TAP_KEY: ${{ secrets.HOMEBREW_TAP_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          dl="https://github.com/$GH_REPO/releases/download/$TAG"
+          work="$RUNNER_TEMP/tap"
+          mkdir -p "$work/Formula" "$work/bucket"
+          cd "$work"
+          gh release download "$TAG" -R "$GH_REPO" -p '*.sha256' -p '*windows-msvc.zip'
+          sha() { cut -d' ' -f1 "$1.sha256"; }
+          # Where kiwa.exe and kw.exe sit inside each zip (top level or one folder).
+          winbin() { unzip -Z1 "$1" | grep -m1 -E "(^|/)$2\.exe$"; }
+
+          cat > Formula/kiwa.rb <<EOF
+          # typed: false
+          # frozen_string_literal: true
+
+          # Written by the release workflow of GregoireF/kiwa (.github/workflows/publish-tap.yml);
+          # do not edit by hand, the next release replaces it.
+          class Kiwa < Formula
+            desc "Find any project, run any task: workspace launcher for humans and AI agents"
+            homepage "https://github.com/GregoireF/kiwa"
+            version "$version"
+            license any_of: ["MIT", "Apache-2.0"]
+
+            on_macos do
+              on_intel do
+                url "$dl/kiwa-x86_64-apple-darwin.tar.xz"
+                sha256 "$(sha kiwa-x86_64-apple-darwin.tar.xz)"
+              end
+              on_arm do
+                url "$dl/kiwa-aarch64-apple-darwin.tar.xz"
+                sha256 "$(sha kiwa-aarch64-apple-darwin.tar.xz)"
+              end
+            end
+
+            on_linux do
+              on_intel do
+                url "$dl/kiwa-x86_64-unknown-linux-gnu.tar.xz"
+                sha256 "$(sha kiwa-x86_64-unknown-linux-gnu.tar.xz)"
+              end
+              on_arm do
+                url "$dl/kiwa-aarch64-unknown-linux-gnu.tar.xz"
+                sha256 "$(sha kiwa-aarch64-unknown-linux-gnu.tar.xz)"
+              end
+            end
+
+            def install
+              bin.install "kiwa", "kw"
+            end
+
+            test do
+              system "#{bin}/kiwa", "--version"
+            end
+          end
+          EOF
+          sed -i 's/^          //' Formula/kiwa.rb
+
+          jq -n \
+            --arg version "$version" \
+            --arg x64_url "$dl/kiwa-x86_64-pc-windows-msvc.zip" \
+            --arg x64_hash "$(sha kiwa-x86_64-pc-windows-msvc.zip)" \
+            --arg x64_bin "$(winbin kiwa-x86_64-pc-windows-msvc.zip kiwa)" --arg x64_kw "$(winbin kiwa-x86_64-pc-windows-msvc.zip kw)" \
+            --arg arm_url "$dl/kiwa-aarch64-pc-windows-msvc.zip" \
+            --arg arm_hash "$(sha kiwa-aarch64-pc-windows-msvc.zip)" \
+            --arg arm_bin "$(winbin kiwa-aarch64-pc-windows-msvc.zip kiwa)" --arg arm_kw "$(winbin kiwa-aarch64-pc-windows-msvc.zip kw)" \
+            '{
+              version: $version,
+              architecture: {
+                "64bit": { url: $x64_url, bin: [$x64_bin, $x64_kw], hash: $x64_hash },
+                arm64: { url: $arm_url, bin: [$arm_bin, $arm_kw], hash: $arm_hash }
+              },
+              homepage: "https://github.com/GregoireF/kiwa",
+              license: "MIT OR Apache-2.0",
+              description: "Find any project, run any task: workspace launcher for humans and AI agents"
+            }' > bucket/kiwa.json
+
+          key="$RUNNER_TEMP/tap_key"
+          install -m 600 /dev/null "$key"
+          printf '%s\n' "$TAP_KEY" > "$key"
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          git clone --depth 1 git@github.com:GregoireF/homebrew-tap.git repo
+          mkdir -p repo/Formula repo/bucket
+          cp Formula/kiwa.rb repo/Formula/kiwa.rb
+          cp bucket/kiwa.json repo/bucket/kiwa.json
+          cd repo
+          git config user.name "kiwa release"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/kiwa.rb bucket/kiwa.json
+          if git diff --cached --quiet; then
+            echo "tap already up to date"
+            exit 0
+          fi
+          git commit -m "📦️ build: kiwa $version"
+          git push origin HEAD
+          rm -f "$key"

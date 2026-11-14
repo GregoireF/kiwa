@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+name: Bug report
+description: kw did something wrong, or crashed.
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The commands you ran. A minimal project layout (file names and their content) helps a lot.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: json
+    attributes:
+      label: "`kw info <project> --json` for the project involved"
+      description: Shows what kiwa detected, the runner and why. Remove anything private.
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: "`kw --version`"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, macOS, Linux, Other]
+    validations:
+      required: true
+  - type: input
+    id: terminal
+    attributes:
+      label: Terminal (for picker issues)
+      placeholder: Windows Terminal, iTerm2, GNOME Terminal, VS Code…

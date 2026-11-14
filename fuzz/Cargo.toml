@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# cargo-fuzz targets for the static manifest parsers. Needs a nightly toolchain:
+#   cargo +nightly fuzz run make -- -max_total_time=60
+[package]
+name = "kiwa-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+kiwa-core = { path = "../crates/kiwa-core" }
+
+# Standalone: not part of the main workspace (see the root Cargo.toml).
+[workspace]
+
+[[bin]]
+name = "make"
+path = "fuzz_targets/make.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "just"
+path = "fuzz_targets/just.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "taskfile"
+path = "fuzz_targets/taskfile.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "rake"
+path = "fuzz_targets/rake.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "config"
+path = "fuzz_targets/config.rs"
+test = false
+doc = false
+bench = false

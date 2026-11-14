@@ -1,0 +1,5 @@
+# Build context of docs/demo/Dockerfile: sources only.
+.git
+target
+fuzz/target
+docs/demo/demo.gif

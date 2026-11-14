@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# Pull request titles follow the conventions of GregoireF/ship-it (gitmoji + Conventional
+# Commits type, subject ≤ 50 characters, header ≤ 72), checked by ship-it's own parser.
+# With squash merges, the title becomes the commit on main.
+name: pr-title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  title:
+    name: title
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: GregoireF/ship-it/actions/check-title@2cb822e90a99fa052da07e03b2c64208575049d3 # v0.1.0
+        with:
+          title: ${{ github.event.pull_request.title }}
+          version: 0.1.0 # pin: ship

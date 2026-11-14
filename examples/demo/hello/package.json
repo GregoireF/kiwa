@@ -1,0 +1,1 @@
+{ "name": "hello", "scripts": { "greet": "node -e \"console.log('Hello from kiwa! 🥝')\"", "fail": "node -e \"process.exit(3)\"" } }

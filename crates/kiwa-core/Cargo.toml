@@ -1,0 +1,30 @@
+[package]
+name = "kiwa-core"
+description = "Core library of kiwa: zero-config, polyglot project and task discovery."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+dirs.workspace = true
+globset.workspace = true
+ignore.workspace = true
+kdl.workspace = true
+nucleo-matcher.workspace = true
+rayon.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
