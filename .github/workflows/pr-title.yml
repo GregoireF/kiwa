@@ -24,7 +24,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: GregoireF/ship-it/actions/check-title@2cb822e90a99fa052da07e03b2c64208575049d3 # v0.1.0
+      - uses: GregoireF/ship-it/actions/check-title@0ea8c06e548f28c3546da07929a44b26e5fc6bae # v0.1.1
         with:
           title: ${{ github.event.pull_request.title }}
           version: 0.1.0 # pin: ship
