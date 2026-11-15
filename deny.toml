@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# cargo-deny (https://embarkstudios.github.io/cargo-deny): advisories, licenses, banned crates
+# and sources of every dependency, on the targets kiwa ships. Run `cargo deny check` locally;
+# CI runs it on pull requests that touch dependencies and every week (.github/workflows/deny.yml).
+
+[graph]
+targets = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-unknown-linux-gnu",
+    "x86_64-unknown-linux-musl",
+    "aarch64-pc-windows-msvc",
+    "x86_64-pc-windows-msvc",
+]
+all-features = true
+
+[advisories]
+# Every RustSec advisory fails, unmaintained crates included (any of the graph's crates).
+unmaintained = "all"
+yanked = "deny"
+ignore = []
+
+[licenses]
+# The licenses found in the graph, each compatible with distributing kiwa under MIT OR
+# Apache-2.0. A new one fails the check and is added here only after a look at its terms.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Unicode-3.0",
+    "Zlib",
+    # File-level copyleft (nucleo-matcher, option-ext): fine for unmodified files, whose sources
+    # stay available on crates.io; a change to those files would have to be shared.
+    "MPL-2.0",
+]
+confidence-threshold = 0.9
+
+[licenses.private]
+# xtask is never published.
+ignore = true
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# The workspace's own path dependencies carry a version too.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

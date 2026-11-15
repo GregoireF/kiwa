@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# cargo-deny (deny.toml): RustSec advisories, licenses, banned crates and sources of every
+# dependency. On pull requests that touch dependencies, on main, and every week, since a new
+# advisory can hit a dependency that did not change.
+name: deny
+
+on:
+  pull_request:
+    paths: ["**/Cargo.toml", "Cargo.lock", "deny.toml", ".github/workflows/deny.yml"]
+  push:
+    branches: [main]
+    paths: ["**/Cargo.toml", "Cargo.lock", "deny.toml", ".github/workflows/deny.yml"]
+  schedule:
+    - cron: "37 4 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: deny-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deny:
+    name: cargo deny (${{ matrix.checks }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # Advisories apart: a new advisory must not hide a license or source problem.
+        checks: [advisories, "bans licenses sources"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check ${{ matrix.checks }}

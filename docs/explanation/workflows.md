@@ -20,6 +20,7 @@ Every workflow follows the same rules, taken from GregoireF/ship-it:
 | `triage.yml` | pull request, issues, hourly | labels from title and paths (`ship label`), welcome for first-time contributors |
 | `labels.yml` | `.github/ship.json` changes | labels as code (`ship sync`) |
 | `stale.yml` | daily | marks idle issues (closed 30 days later), marks idle pull requests (never closed), locks old threads |
+| `deny.yml` | dependency changes, main, weekly | `cargo deny`: RustSec advisories, allowed licenses, banned crates, sources (`deny.toml`) |
 | `codeql.yml`, `dependency-review.yml`, `scorecard.yml` | pull request, weekly | code scanning, vulnerable dependencies, OpenSSF Scorecard |
 | `outdated.yml` | weekly | pinned tools behind their latest release → one tracking issue |
 | `nightly.yml` | daily | the whole suite with that day's runner images; one issue on failure |
