@@ -134,7 +134,8 @@ A detector turns a manifest into tasks, by reading files only.
   keys or exit codes updates [the reference](docs/reference/json-and-exit-codes.md),
   [stability](docs/reference/stability.md) and [CHANGELOG.md](CHANGELOG.md).
 - **Few dependencies.** A new one is explained in the pull request: what it saves us from
-  writing, and why that code is hard.
+  writing, and why that code is hard. `cargo deny check` (CI runs it) refuses a license that
+  `deny.toml` does not allow, and any crate with a RustSec advisory.
 - **Design decisions get an [ADR](docs/adr/README.md).**
 - **AI assistants are fine;** you remain responsible for what you submit, and the pull request
   says how they were used.
