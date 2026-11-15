@@ -5,4 +5,11 @@ versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Minimum supported Rust version 1.88 (was 1.85): the `ignore` crate needs it since 0.4.30.
+
+### Fixed
+- Linux: stopping kw (SIGTERM, SIGHUP, SIGQUIT) also stops the processes its task started, such
+  as the `node` behind `npm run`, which `dash` leaves running when only `npm` is signalled.
+
 [Unreleased]: https://github.com/GregoireF/kiwa/commits/main

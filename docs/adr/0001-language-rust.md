@@ -15,7 +15,7 @@ macOS and Linux, and attract contributors.
 | Zig | ~1 ms | excellent | immature | small | ecosystem too young |
 
 ## Decision
-Rust, edition 2024, MSRV 1.85.
+Rust, edition 2024, MSRV 1.88 (raised from 1.85 on 2026-11-15: `ignore` 0.4.30 and later use let chains, stable since 1.88). Dependencies are resolved for that version (`.cargo/config.toml`: `incompatible-rust-versions = "fallback"`).
 
 ## Consequences
 + Fastest startup, small static binary, memory safety, `unsafe` forbidden workspace-wide.

@@ -90,10 +90,8 @@ pub fn pnpm_workspace(yaml: &str) -> Declared {
             }
             continue;
         }
-        if inside {
-            if let Some(item) = t.trim_start().strip_prefix("- ") {
-                out.push(unquote(item));
-            }
+        if inside && let Some(item) = t.trim_start().strip_prefix("- ") {
+            out.push(unquote(item));
         }
     }
     split(

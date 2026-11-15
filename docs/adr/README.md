@@ -5,7 +5,7 @@ is changed by a new record that supersedes the old one, never by editing it sile
 
 | ADR | Decision |
 |---|---|
-| [0001](0001-language-rust.md) | Rust, edition 2024, MSRV 1.85 |
+| [0001](0001-language-rust.md) | Rust, edition 2024, MSRV 1.88 |
 | [0002](0002-config-kdl.md) | KDL v2 configuration, edited in place |
 | [0003](0003-static-discovery.md) | Static discovery, no shell |
 | [0004](0004-agent-contract.md) | Agent-native contract: JSON, skill, MCP |

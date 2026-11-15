@@ -222,11 +222,59 @@ mod guard {
         std::thread::spawn(move || {
             for sig in signals.forever() {
                 if let Ok(s) = Signal::try_from(sig) {
+                    // The whole tree, not just the child: `npm run x` starts `sh -c x`, and
+                    // dash (Ubuntu's sh) does not exec the command, so killing npm alone would
+                    // leave the real task running. Descendants are read before anyone dies.
+                    let tree = descendants(pid.as_raw());
                     let _ = kill(pid, s);
+                    for p in tree {
+                        let _ = kill(Pid::from_raw(p), s);
+                    }
                 }
             }
         });
         Some(Guard(handle))
+    }
+
+    /// Every process below `root` (children, grandchildren…), from `/proc/<pid>/stat`. The
+    /// task stays in kw's process group so that the terminal's Ctrl+C and keyboard reach it;
+    /// that is why its tree is walked instead of signalling a group of its own.
+    #[cfg(target_os = "linux")]
+    pub(super) fn descendants(root: i32) -> Vec<i32> {
+        let mut parent_of: Vec<(i32, i32)> = Vec::new();
+        for entry in std::fs::read_dir("/proc").into_iter().flatten().flatten() {
+            let Ok(pid) = entry.file_name().to_string_lossy().parse::<i32>() else {
+                continue;
+            };
+            // `pid (comm) state ppid …`: comm may hold spaces and parentheses, so read after
+            // the last `)`.
+            let ppid = std::fs::read_to_string(format!("/proc/{pid}/stat"))
+                .ok()
+                .and_then(|s| {
+                    let rest = s.rsplit_once(')')?.1.to_owned();
+                    rest.split_whitespace().nth(1)?.parse::<i32>().ok()
+                });
+            if let Some(ppid) = ppid {
+                parent_of.push((pid, ppid));
+            }
+        }
+        let mut out = Vec::new();
+        let mut todo = vec![root];
+        while let Some(p) = todo.pop() {
+            for &(child, parent) in &parent_of {
+                if parent == p && !out.contains(&child) {
+                    out.push(child);
+                    todo.push(child);
+                }
+            }
+        }
+        out
+    }
+
+    /// Without `/proc`, only the child is signalled (macOS's sh execs the command).
+    #[cfg(all(unix, not(target_os = "linux")))]
+    pub(super) fn descendants(_root: i32) -> Vec<i32> {
+        Vec::new()
     }
 
     #[cfg(unix)]
@@ -317,10 +365,10 @@ pub fn describe_exit(code: i32) -> String {
     if cfg!(windows) && code as u32 == 0xC000_013A {
         return "interrupted (Ctrl+C)".into();
     }
-    if cfg!(unix) {
-        if let Some((_, name)) = SIGNALS.iter().find(|(n, _)| code == 128 + n) {
-            return format!("exit {code} ({name})");
-        }
+    if cfg!(unix)
+        && let Some((_, name)) = SIGNALS.iter().find(|(n, _)| code == 128 + n)
+    {
+        return format!("exit {code} ({name})");
     }
     format!("exit {code}")
 }
@@ -388,6 +436,26 @@ mod tests {
             display_argv(&["a".into(), "b c".into(), "".into()]),
             r#"a "b c" """#
         );
+    }
+
+    /// A grandchild that outlives its parent's shell is found, so a forwarded SIGTERM reaches it.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn descendants_include_grandchildren() {
+        let mut child = std::process::Command::new("sh")
+            .args(["-c", "sleep 30 & sleep 30 & wait"])
+            .spawn()
+            .unwrap();
+        std::thread::sleep(Duration::from_millis(300));
+        let tree = guard::descendants(child.id() as i32);
+        let _ = child.kill();
+        for p in &tree {
+            let _ = std::process::Command::new("kill")
+                .arg(p.to_string())
+                .status();
+        }
+        let _ = child.wait();
+        assert_eq!(tree.len(), 2, "both sleeps: {tree:?}");
     }
 
     #[test]
