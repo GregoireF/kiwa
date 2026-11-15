@@ -7,5 +7,7 @@ paths:
       # `$RUNNER_TEMP` and `$PRERELEASE_FLAG` in dist's release step: the flag must split into
       # zero or one word, and the runner's temporary folder has no spaces.
       - 'SC2086'
+      # Style only: dist appends to $GITHUB_OUTPUT one line at a time.
+      - 'SC2129'
       # dist reads `steps.<id>.outputs` of its own steps, which actionlint cannot type.
       - 'property "output" is not defined'

@@ -490,6 +490,9 @@ mod tests {
             "{notes:?}"
         );
         drop(listener);
+        // A free port: port 0, on which nothing can listen. (A port just released may still
+        // accept a connection for a moment on Linux, so it would make this flaky.)
+        t.url = Some("http://localhost:0".into());
         let free = url_notes(&t, &[], |_, _| None);
         assert_eq!(free.len(), 1, "a free port: just the URL");
         assert!(url_notes(&Task::new("x", "y", &["y"]), &[], |_, _| None).is_empty());
