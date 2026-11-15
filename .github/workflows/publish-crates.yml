@@ -48,7 +48,9 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
           VERSION: ${{ steps.meta.outputs.version }}
-        run: |
+        # crates.io trusted publishing (OIDC) can only be set up for a crate that already exists:
+        # the first release publishes with a token, later ones move to OIDC (#37).
+        run: | # zizmor: ignore[use-trusted-publishing]
           set -euo pipefail
           for crate in kiwa-core kiwa; do
             if curl -fsS -A "kiwa-release (github.com/GregoireF/kiwa)" \
