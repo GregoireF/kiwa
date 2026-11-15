@@ -250,7 +250,10 @@ mod tests {
             text,
             "run `cargo xtask dist-generate`"
         );
-        assert!(!text.contains("secrets: inherit\n"), "every inherit says why");
+        assert!(
+            !text.contains("secrets: inherit\n"),
+            "every inherit says why"
+        );
         assert!(text.contains("permissions: {}\n"));
         assert!(!text.contains("container:"));
         assert!(text.contains("steps.cargo-cyclonedx.outputs.paths"));
