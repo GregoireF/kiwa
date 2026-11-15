@@ -46,7 +46,7 @@ which.workspace = true
 # No child left behind (exec.rs, mod guard): signals forwarded on Unix, job object on Windows.
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
-nix = { version = "0.29", default-features = false, features = ["signal"] }
+nix = { version = "0.31", default-features = false, features = ["signal"] }
 
 [target.'cfg(windows)'.dependencies]
 win32job = "2"
