@@ -7,7 +7,8 @@ clearer error message, a missing task in a detector.
   [`good first issue`](https://github.com/GregoireF/kiwa/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
   are small and self-contained. A detector for a tool you use is a good first pull request
   ([how](#add-a-detector)).
-- **Taking an issue?** Say so on the issue first, so two people do not write the same change.
+- **Taking an issue?** Comment `/take` on it: it is assigned to you, so two people do not write
+  the same change. `/release` gives it back, `/help` lists the commands.
 - **A bigger idea?** Open a [feature request](https://github.com/GregoireF/kiwa/issues/new/choose)
   or a [discussion](https://github.com/GregoireF/kiwa/discussions) before writing code.
 - **A security problem?** Never in a public issue: see [SECURITY.md](SECURITY.md).
@@ -88,7 +89,8 @@ The conventions are those of [ship-it](https://github.com/GregoireF/ship-it):
 
 ## 6. Open the pull request
 
-Push your branch and open the pull request against `main`. The template asks for:
+Push your branch and open the pull request against `main` (a draft is fine while you work;
+comment `/ready` to ask for a review). The template asks for:
 
 - the related issue (`Closes #123`);
 - how you tested it, in the first person: what you ran and what you saw;
