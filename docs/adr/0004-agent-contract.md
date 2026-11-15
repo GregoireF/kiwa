@@ -1,6 +1,7 @@
 # ADR 0004: Agent-native contract (JSON, skill, MCP)
 
-Status: accepted (2026-11-06)
+Status: accepted (2026-11-06). Update (2026-11-15): 0.1 ships points 1 and 4 and the skill file;
+`kw agent skill` and `kw mcp` moved to 0.2 ([ROADMAP](../../ROADMAP.md) K-40, K-41).
 
 ## Context
 Agents (Claude Code, Codex, Cursor, Copilot...) drive CLIs through text. Convergent 2026

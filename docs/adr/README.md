@@ -7,7 +7,7 @@ is changed by a new record that supersedes the old one, never by editing it sile
 |---|---|
 | [0001](0001-language-rust.md) | Rust, edition 2024, MSRV 1.88 |
 | [0002](0002-config-kdl.md) | KDL v2 configuration, edited in place |
-| [0003](0003-static-discovery.md) | Static discovery, no shell |
+| [0003](0003-static-discovery.md) | Static discovery, no shell (amended by 0009) |
 | [0004](0004-agent-contract.md) | Agent-native contract: JSON, skill, MCP |
 | [0005](0005-name-license-distribution.md) | Name, license, distribution |
 | [0006](0006-measured-runner-behaviour.md) | Runner behaviour is measured, not assumed |

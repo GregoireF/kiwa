@@ -21,7 +21,7 @@ checked by hand before 1.0. Reports welcome.
 `kw doctor` prints what kiwa sees without asking anything: the terminal it guesses from the
 environment (`TERM_PROGRAM`, `WT_SESSION`, `KITTY_WINDOW_ID`, `KONSOLE_VERSION`,
 `GNOME_TERMINAL_SCREEN`, `VTE_VERSION`, `MSYSTEM`), the colour depth it advertises (`COLORTERM`,
-`TERM`), whether the mouse is on and why not, the config and state files, and which of the 26
+`TERM`), whether the mouse is on and why not, the config and state files, and which of the 28
 runners are on `PATH`. It reads variables and files only; it starts no process.
 
 `kw doctor --probe` opens a screen that lists what to try (left, right and middle click, motion

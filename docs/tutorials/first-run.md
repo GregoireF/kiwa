@@ -1,6 +1,7 @@
 # Your first five minutes with kw
 
-You will install kw, point it at your projects, run a task, and make the next run one key.
+In five minutes you will install kiwa, point it at your projects, run a task, and make the next
+run a single key.
 
 ## 1. Install
 
@@ -8,9 +9,11 @@ You will install kw, point it at your projects, run a task, and make the next ru
 brew install gregoiref/tap/kiwa                       # macOS, Linux
 scoop bucket add gregoiref https://github.com/GregoireF/homebrew-tap
 scoop install kiwa                                     # Windows
+cargo install kiwa --locked                            # any platform, Rust 1.88+
 ```
 
-Or from a clone: `cargo install --path crates/kiwa`. The command is `kw`.
+This installs the program twice, as `kiwa` and as the short name `kw` used below. Check it with
+`kw --version`.
 
 ## 2. Choose your folders
 
@@ -26,8 +29,8 @@ switches between workspaces and adds a folder as a new one.
 
 ## 3. Find and run a task
 
-Type a few letters of the project **and** the task, in one search: `api te` finds the `test`
-task of `api-gateway`. The details on the right show the exact command, why kw chose that
+Type a few letters of the project **and** of the task, in one search: `api te` finds the `test`
+task of `api-gateway`. ↑ and ↓ move the selection. The details on the right show the exact command, why kw chose that
 runner (`pnpm · pnpm-lock.yaml`) and the last result. Press Enter to run it.
 
 The output stays on your terminal. Then: Enter goes back to the picker, `r` runs the task
@@ -44,3 +47,6 @@ Open `kw` again: the task you just ran is at the top, under **recent**, with its
 - Jump into a project: add `eval "$(kw shell-init bash)"` to your shell profile, then `kcd api`
   ([shell integration](../how-to/shell-integration.md)).
 - Hide noise: `kw config set hide "*:lint:fix"` ([configuration](../reference/configuration.md)).
+- Start a project you just cloned: `kw about <project>` says what it needs, `kw setup <project>`
+  installs it, after showing the plan.
+- Every command and key: [commands and keys](../reference/cli.md).
