@@ -6,18 +6,21 @@
 //! after each generation, instead of being ignored:
 //!
 //! - permissions: none at the workflow level, and per job only what it needs;
-//! - `custom-publish-tap` grants `contents: read` only (publish-tap.yml asks for it: without it
-//!   the whole workflow fails to start; it needs no id-token or packages) and passes no secrets (publish-tap reads its key from its own
+//! - the custom publish jobs (`custom-publish-crates`, `custom-publish-tap`) grant
+//!   `contents: read` only (their workflows ask for it: without it the whole workflow fails to
+//!   start; they need no id-token or packages) and pass no secrets (each reads its own from the
 //!   `release` environment);
 //! - every `${{ … }}` of a `run:` moves into an environment variable; steps that ran in the
 //!   runner's default shell keep it (bash, pwsh on Windows), as two steps;
-//! - no `container:` (dist sets none for kiwa's targets);
+//! - no `container:` (dist sets none for kiwa's targets), so no rustup step for one;
+//! - dist and cargo-cyclonedx come from their release archives, checked by SHA-256, instead of
+//!   an installer script piped to `sh` (Scorecard: pinned dependencies);
 //! - `steps.cargo-cyclonedx.output.paths` reads `outputs`, so the SBOMs are uploaded.
 //!
 //! Each rewrite is idempotent and fails when dist's output no longer has the expected shape, so
 //! a dist upgrade that changes the template is noticed instead of silently left unhardened.
 
-/// One rewrite: `from` becomes `to`. Already applied when `to` is there and `from` is not.
+/// One rewrite: every `from` becomes `to`. Already applied when `to` is there and `from` is not.
 struct Rewrite {
     why: &'static str,
     from: &'static str,
@@ -39,6 +42,64 @@ const REWRITES: &[Rewrite] = &[
         why: "plan: the dist command through the environment",
         from: "      - id: plan\n        run: |\n          dist ${{ (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json\n",
         to: "      - id: plan\n        env:\n          DIST_STEP: ${{ (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }}\n        run: |\n          dist $DIST_STEP --output-format=json > plan-dist-manifest.json\n",
+    },
+    Rewrite {
+        why: "plan: dist from its pinned archive, checked by SHA-256, instead of an installer piped to sh",
+        from: r#"      - name: Install dist
+        # we specify bash to get pipefail; it guards against the `curl` command
+        # failing. otherwise `sh` won't catch that `curl` returned non-0
+        shell: bash
+        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.34.0/cargo-dist-installer.sh | sh"
+"#,
+        to: r#"      - name: Install dist
+        # The release archive, checked against the SHA-256 dist publishes for it (Scorecard:
+        # pinned dependencies); bump both with cargo-dist-version.
+        shell: bash
+        env:
+          ARCHIVE: https://github.com/axodotdev/cargo-dist/releases/download/v0.34.0/cargo-dist-x86_64-unknown-linux-gnu.tar.xz
+          SHA256: 7fee44ff3ff71ed0064b32d4ec62fee6b58bd37c5887b12a86aedddc5af0c7b5
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf -o "$RUNNER_TEMP/dist.tar.xz" "$ARCHIVE"
+          echo "$SHA256  $RUNNER_TEMP/dist.tar.xz" | sha256sum -c -
+          mkdir -p ~/.cargo/bin
+          tar -xJf "$RUNNER_TEMP/dist.tar.xz" -C ~/.cargo/bin --strip-components=1 cargo-dist-x86_64-unknown-linux-gnu/dist
+"#,
+    },
+    Rewrite {
+        why: "build-local-artifacts: no rustup step for containers (there are none)",
+        from: r#"      - name: Install Rust non-interactively if not already installed
+        if: ${{ matrix.container }}
+        run: |
+          if ! command -v cargo > /dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          fi
+"#,
+        to: "",
+    },
+    Rewrite {
+        why: "build-global-artifacts: cargo-cyclonedx from its pinned archive, checked by SHA-256",
+        from: r#"      - name: Install cargo-cyclonedx
+        # we specify bash to get pipefail; it guards against the `curl` command
+        # failing. otherwise `sh` won't catch that `curl` return non-0
+        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/CycloneDX/cyclonedx-rust-cargo/releases/download/cargo-cyclonedx-0.5.5/cargo-cyclonedx-installer.sh | sh"
+        shell: bash
+"#,
+        to: r#"      - name: Install cargo-cyclonedx
+        # The release archive, checked against its published SHA-256 (Scorecard: pinned
+        # dependencies); bump both when dist moves to another cargo-cyclonedx.
+        shell: bash
+        env:
+          ARCHIVE: https://github.com/CycloneDX/cyclonedx-rust-cargo/releases/download/cargo-cyclonedx-0.5.5/cargo-cyclonedx-x86_64-unknown-linux-gnu.tar.xz
+          SHA256: 9136714bd6e1ac703f5c2c889af578d9783852886d6ebfe18d471555637ad2b3
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf -o "$RUNNER_TEMP/cyclonedx.tar.xz" "$ARCHIVE"
+          echo "$SHA256  $RUNNER_TEMP/cyclonedx.tar.xz" | sha256sum -c -
+          mkdir -p ~/.cargo/bin
+          tar -xJf "$RUNNER_TEMP/cyclonedx.tar.xz" -C ~/.cargo/bin --strip-components=1 cargo-cyclonedx-x86_64-unknown-linux-gnu/cargo-cyclonedx
+"#,
     },
     Rewrite {
         why: "build-local-artifacts: no container (dist sets none for kiwa's targets)",
@@ -91,14 +152,14 @@ const REWRITES: &[Rewrite] = &[
         to: "          RELEASE_COMMIT: \"${{ github.sha }}\"\n          RELEASE_TAG: \"${{ needs.plan.outputs.tag }}\"\n        run: |\n          # Write and read notes from a file to avoid quoting breaking things\n          echo \"$ANNOUNCEMENT_BODY\" > \"$RUNNER_TEMP/notes.txt\"\n\n          gh release create \"$RELEASE_TAG\"",
     },
     Rewrite {
-        why: "custom-publish-tap: contents: read for publish-tap.yml, and no inherited secrets",
+        why: "custom publish jobs: contents: read, and no inherited secrets",
         from: "    secrets: inherit\n    # publish jobs get escalated permissions\n    permissions:\n      \"id-token\": \"write\"\n      \"packages\": \"write\"\n",
-        to: "    # publish-tap.yml reads HOMEBREW_TAP_SSH_KEY from its own `release` environment (no secrets to\n    # pass) and pushes to the tap over SSH: it only reads the release, so contents: read, and no\n    # id-token or packages.\n    permissions:\n      \"contents\": \"read\"\n",
+        to: "    # The publish workflows read their secrets (CARGO_REGISTRY_TOKEN, HOMEBREW_TAP_SSH_KEY) from\n    # their own `release` environment, so none are passed; they only read the release and the\n    # sources: contents: read, and no id-token or packages.\n    permissions:\n      \"contents\": \"read\"\n",
     },
     Rewrite {
         why: "announce: read only",
-        from: "    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-tap.result == 'skipped' || needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n",
-        to: "    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-tap.result == 'skipped' || needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n    permissions:\n      \"contents\": \"read\"\n",
+        from: "|| needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n",
+        to: "|| needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n    permissions:\n      \"contents\": \"read\"\n",
     },
 ];
 
@@ -126,7 +187,8 @@ pub fn harden(text: &str) -> Result<String, String> {
                 r.why
             ));
         }
-        out = out.replacen(r.from, r.to, 1);
+        // Every occurrence: the custom publish jobs share one shape.
+        out = out.replace(r.from, r.to);
     }
     let left = expressions_in_run(&out);
     if !left.is_empty() {

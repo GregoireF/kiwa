@@ -146,7 +146,7 @@ Repository and release
   installers, Homebrew and Scoop install both, and so will winget, npm and PyPI (K-78); `.deb`, `.rpm` and AUR install
   `kiwa` only, because Debian's `kworkflow` ships `/usr/bin/kw`; `kiwa shell-init --name kw` adds it
   when nothing else is called `kw` (K-36); docs and examples say which name they use
-- [ ] K-27 Publish 0.1.0: public repository, GitHub release with installers, Homebrew tap, Scoop bucket and
+- [x] K-27 Publish 0.1.0: public repository, GitHub release with installers, Homebrew tap, Scoop bucket and
   crates.io; the two-week release-candidate period applies before 1.0
 
 Documentation
