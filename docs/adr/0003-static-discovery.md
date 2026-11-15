@@ -1,6 +1,8 @@
 # ADR 0003: Static discovery, no shell
 
-Status: accepted (2026-11-06)
+Status: accepted (2026-11-06); the "no shell" part is amended by
+[ADR 0009](0009-shell-lines-shown-and-confirmed.md): a line that needs a shell runs only after it
+is shown and confirmed.
 
 ## Context
 Listing tasks could call `just --summary`, `npm run`, `task --list-all`, `gradle tasks`.

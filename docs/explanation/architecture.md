@@ -2,12 +2,13 @@
 
 ```
 crates/
-  kiwa-core/   library: model, detectors, discovery, resolution, config, state
-  kiwa/        the `kw` binary: CLI (clap), TUI (ratatui), output, process execution
+  kiwa-core/   library: model, detectors, discovery, resolution, config, state, setup plans
+  kiwa/        the program (library kiwa_cli): CLI (clap), picker (ratatui), output, execution;
+               two binaries, `kiwa` and `kw`, run the same code (ADR 0010)
 ```
 
-One model (`Project`, `Task`) feeds every front end: human text, the TUI, `--json` and,
-next, the MCP server. Front ends never re-implement discovery or resolution.
+One model (`Project`, `Task`) feeds every front end: human text, the picker and `--json`.
+Front ends never re-implement discovery or resolution.
 
 ## Pipeline
 
@@ -18,15 +19,18 @@ next, the MCP server. Front ends never re-implement discovery or resolution.
 3. **Assemble** projects: id = path relative to the root, ecosystems in detector order,
    git branch read from `.git/HEAD`.
 4. **Resolve** user input: exact → case-insensitive → unique prefix; fuzzy only suggests.
-5. **Execute** an argv directly (no shell), in the project directory, with the runner
-   resolved through `PATH`/`PATHEXT`. The exit code is mirrored.
+5. **Execute** an argv directly, in the project directory, with the runner resolved through
+   `PATH`/`PATHEXT`. A line that needs a shell (a README step, a CI job) runs through `sh -c`
+   only after it is shown and confirmed (ADR 0009). Signals are forwarded and the task's
+   process tree is stopped with kw. The exit code is mirrored.
 
 ## Principles
 
 - **Static discovery.** Listing tasks of an untrusted repository must be safe. Detectors
   parse files; they do not run `just --list` or `npm`. Trade-off: rare dynamic task
   definitions are missed. User-defined KDL detectors will cover in-house cases.
-- **No shell.** Avoids quoting bugs and injection, and behaves the same on every OS.
+- **No shell by default.** Avoids quoting bugs and injection, and behaves the same on every
+  OS; the few shell lines are always shown first.
 - **Contract first.** JSON shapes and exit codes are documented before they ship.
 - **Dependency budget.** Each dependency must be widely used, maintained and
   cross-platform. No YAML parser: the Taskfile scan is a small, tested line parser.
@@ -35,7 +39,4 @@ next, the MCP server. Front ends never re-implement discovery or resolution.
 
 ## Adding a detector
 
-1. Add a variant to `Ecosystem` in `model.rs`.
-2. Write `fn name(dir: &Path, root: &Path) -> Option<Detection>` in `detect.rs` and add it
-   to `DETECTORS`.
-3. Add a fixture to `examples/demo` and a unit test for any parsing logic.
+Step by step in [CONTRIBUTING.md](../../CONTRIBUTING.md#add-a-detector).
