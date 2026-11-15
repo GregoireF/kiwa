@@ -33,7 +33,7 @@ rayon = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 tempfile = "3"
-toml = "0.8"
+toml = "1.2"
 unicode-width = "0.2"
 which = "8"
 
