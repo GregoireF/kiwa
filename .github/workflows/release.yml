@@ -367,9 +367,10 @@ jobs:
     uses: $/.github/workflows/publish-crates.yml
     with:
       plan: ${{ needs.plan.outputs.val }}
-    # The publish workflows read their secrets (CARGO_REGISTRY_TOKEN, HOMEBREW_TAP_SSH_KEY) from
-    # their own `release` environment, so none are passed; they only read the release and the
-    # sources: contents: read, and no id-token or packages.
+    # The publish workflows read CARGO_REGISTRY_TOKEN and HOMEBREW_TAP_SSH_KEY from their `release`
+    # environment, which GitHub hands to a called workflow only when the caller inherits secrets;
+    # the repository has none of its own. They only read the release and the sources.
+    secrets: inherit # zizmor: ignore[secrets-inherit]
     permissions:
       "contents": "read"
 
@@ -381,9 +382,10 @@ jobs:
     uses: $/.github/workflows/publish-tap.yml
     with:
       plan: ${{ needs.plan.outputs.val }}
-    # The publish workflows read their secrets (CARGO_REGISTRY_TOKEN, HOMEBREW_TAP_SSH_KEY) from
-    # their own `release` environment, so none are passed; they only read the release and the
-    # sources: contents: read, and no id-token or packages.
+    # The publish workflows read CARGO_REGISTRY_TOKEN and HOMEBREW_TAP_SSH_KEY from their `release`
+    # environment, which GitHub hands to a called workflow only when the caller inherits secrets;
+    # the repository has none of its own. They only read the release and the sources.
+    secrets: inherit # zizmor: ignore[secrets-inherit]
     permissions:
       "contents": "read"
 
