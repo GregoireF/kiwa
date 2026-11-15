@@ -4,14 +4,16 @@
 
 **Find any project. Run any task. One fuzzy search over every task of every project on your machine, for you and for your AI agents.**
 
-[![CI](https://github.com/GregoireF/kiwa/actions/workflows/ci.yml/badge.svg)](https://github.com/GregoireF/kiwa/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/GregoireF/kiwa/actions/workflows/codeql.yml/badge.svg)](https://github.com/GregoireF/kiwa/actions/workflows/codeql.yml)
+[![CI](https://github.com/GregoireF/kiwa/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/GregoireF/kiwa/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/GregoireF/kiwa/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/GregoireF/kiwa/actions/workflows/codeql.yml)
 [![Release](https://img.shields.io/github/v/release/GregoireF/kiwa?include_prereleases&sort=semver)](https://github.com/GregoireF/kiwa/releases)
+[![crates.io](https://img.shields.io/crates/v/kiwa?logo=rust)](https://crates.io/crates/kiwa)
 [![Downloads](https://img.shields.io/github/downloads/GregoireF/kiwa/total)](https://github.com/GregoireF/kiwa/releases)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/GregoireF/kiwa/badge)](https://scorecard.dev/viewer/?uri=github.com/GregoireF/kiwa)
 <br>
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
-[![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange)](Cargo.toml)
+[![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange?logo=rust)](Cargo.toml)
+[![docs.rs](https://img.shields.io/docsrs/kiwa-core?label=docs.rs%20kiwa-core)](https://docs.rs/kiwa-core)
 [![Good first issues](https://img.shields.io/github/issues/GregoireF/kiwa/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/GregoireF/kiwa/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
 
 [Install](#install) · [Quick start](docs/tutorials/first-run.md) · [Documentation](docs/README.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)
@@ -100,10 +102,11 @@ kw last                   # run it again
 brew install gregoiref/tap/kiwa                       # macOS, Linux
 scoop bucket add gregoiref https://github.com/GregoireF/homebrew-tap
 scoop install kiwa                                     # Windows
+cargo install kiwa --locked                            # from source, Rust 1.88+
 ```
 
 Or a [release archive](https://github.com/GregoireF/kiwa/releases) (shell and PowerShell
-installers, SBOM, build provenance), or `cargo install --path crates/kiwa` from a clone.
+installers, SBOM, build provenance), or `cargo install --path crates/kiwa --locked` from a clone.
 
 The command is `kiwa`. Every channel above also installs `kw`, the short name used in this
 documentation. Linux distribution packages install `kiwa` only, because Debian's `kworkflow` already

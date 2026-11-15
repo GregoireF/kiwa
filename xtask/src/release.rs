@@ -6,8 +6,9 @@
 //! after each generation, instead of being ignored:
 //!
 //! - permissions: none at the workflow level, and per job only what it needs;
-//! - `custom-publish-tap` grants `contents: read` only (publish-tap.yml asks for it: without it
-//!   the whole workflow fails to start; it needs no id-token or packages) and passes no secrets (publish-tap reads its key from its own
+//! - the custom publish jobs (`custom-publish-crates`, `custom-publish-tap`) grant
+//!   `contents: read` only (their workflows ask for it: without it the whole workflow fails to
+//!   start; they need no id-token or packages) and pass no secrets (each reads its own from the
 //!   `release` environment);
 //! - every `${{ … }}` of a `run:` moves into an environment variable; steps that ran in the
 //!   runner's default shell keep it (bash, pwsh on Windows), as two steps;
@@ -17,7 +18,7 @@
 //! Each rewrite is idempotent and fails when dist's output no longer has the expected shape, so
 //! a dist upgrade that changes the template is noticed instead of silently left unhardened.
 
-/// One rewrite: `from` becomes `to`. Already applied when `to` is there and `from` is not.
+/// One rewrite: every `from` becomes `to`. Already applied when `to` is there and `from` is not.
 struct Rewrite {
     why: &'static str,
     from: &'static str,
@@ -91,14 +92,14 @@ const REWRITES: &[Rewrite] = &[
         to: "          RELEASE_COMMIT: \"${{ github.sha }}\"\n          RELEASE_TAG: \"${{ needs.plan.outputs.tag }}\"\n        run: |\n          # Write and read notes from a file to avoid quoting breaking things\n          echo \"$ANNOUNCEMENT_BODY\" > \"$RUNNER_TEMP/notes.txt\"\n\n          gh release create \"$RELEASE_TAG\"",
     },
     Rewrite {
-        why: "custom-publish-tap: contents: read for publish-tap.yml, and no inherited secrets",
+        why: "custom publish jobs: contents: read, and no inherited secrets",
         from: "    secrets: inherit\n    # publish jobs get escalated permissions\n    permissions:\n      \"id-token\": \"write\"\n      \"packages\": \"write\"\n",
-        to: "    # publish-tap.yml reads HOMEBREW_TAP_SSH_KEY from its own `release` environment (no secrets to\n    # pass) and pushes to the tap over SSH: it only reads the release, so contents: read, and no\n    # id-token or packages.\n    permissions:\n      \"contents\": \"read\"\n",
+        to: "    # The publish workflows read their secrets (CARGO_REGISTRY_TOKEN, HOMEBREW_TAP_SSH_KEY) from\n    # their own `release` environment, so none are passed; they only read the release and the\n    # sources: contents: read, and no id-token or packages.\n    permissions:\n      \"contents\": \"read\"\n",
     },
     Rewrite {
         why: "announce: read only",
-        from: "    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-tap.result == 'skipped' || needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n",
-        to: "    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-tap.result == 'skipped' || needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n    permissions:\n      \"contents\": \"read\"\n",
+        from: "|| needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n",
+        to: "|| needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n    permissions:\n      \"contents\": \"read\"\n",
     },
 ];
 
@@ -126,7 +127,8 @@ pub fn harden(text: &str) -> Result<String, String> {
                 r.why
             ));
         }
-        out = out.replacen(r.from, r.to, 1);
+        // Every occurrence: the custom publish jobs share one shape.
+        out = out.replace(r.from, r.to);
     }
     let left = expressions_in_run(&out);
     if !left.is_empty() {
