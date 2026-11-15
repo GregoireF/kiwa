@@ -3,11 +3,8 @@
 All notable changes are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning: [SemVer](https://semver.org/).
 
-## [Unreleased]
+## Unreleased
 
-## [0.1.0] - 2026-11-15
+## 0.1.0 - 2026-11-15
 
 First public release.
-
-[Unreleased]: https://github.com/GregoireF/kiwa/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/GregoireF/kiwa/releases/tag/v0.1.0
