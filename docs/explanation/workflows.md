@@ -19,6 +19,7 @@ Every workflow follows the same rules, taken from GregoireF/ship-it:
 | `dco.yml` | pull request | `Signed-off-by` on every commit |
 | `license.yml` | pull request, main | the SPDX header of every source file ([addlicense](https://github.com/GregoireF/addlicense)) |
 | `triage.yml` | pull request, issues, hourly | labels from title and paths (`ship label`), welcome for first-time contributors |
+| `commands.yml` | `/` comments, every 15 minutes | `/take` and `/release` an issue, `/ready` asks for a review, `/help` (from ship-it) |
 | `labels.yml` | `.github/ship.json` changes | labels as code (`ship sync`) |
 | `stale.yml` | daily | marks idle issues (closed 30 days later), marks idle pull requests (never closed), locks old threads |
 | `deny.yml` | dependency changes, main, weekly | `cargo deny`: RustSec advisories, allowed licenses, banned crates, sources (`deny.toml`) |
