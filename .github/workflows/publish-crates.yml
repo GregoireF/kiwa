@@ -33,12 +33,11 @@ jobs:
         run: |
           set -euo pipefail
           tag="$(jq -r '.announcement_tag' <<<"$PLAN")"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
 
+      # The release runs from the tag push, so the default ref is the tagged commit.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ steps.meta.outputs.tag }}
           persist-credentials: false
 
       - name: install Rust
