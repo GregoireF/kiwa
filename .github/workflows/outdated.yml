@@ -31,9 +31,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
-        with:
-          toolchain: stable
+      - name: rust stable
+        # rustup comes with every GitHub runner: no third-party action.
+        run: rustup toolchain install stable --profile minimal && rustup default stable
       - name: outdated
         id: outdated
         env:
