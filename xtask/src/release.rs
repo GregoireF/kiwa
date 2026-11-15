@@ -12,7 +12,9 @@
 //!   `release` environment);
 //! - every `${{ … }}` of a `run:` moves into an environment variable; steps that ran in the
 //!   runner's default shell keep it (bash, pwsh on Windows), as two steps;
-//! - no `container:` (dist sets none for kiwa's targets);
+//! - no `container:` (dist sets none for kiwa's targets), so no rustup step for one;
+//! - dist and cargo-cyclonedx come from their release archives, checked by SHA-256, instead of
+//!   an installer script piped to `sh` (Scorecard: pinned dependencies);
 //! - `steps.cargo-cyclonedx.output.paths` reads `outputs`, so the SBOMs are uploaded.
 //!
 //! Each rewrite is idempotent and fails when dist's output no longer has the expected shape, so
@@ -40,6 +42,64 @@ const REWRITES: &[Rewrite] = &[
         why: "plan: the dist command through the environment",
         from: "      - id: plan\n        run: |\n          dist ${{ (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json\n",
         to: "      - id: plan\n        env:\n          DIST_STEP: ${{ (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }}\n        run: |\n          dist $DIST_STEP --output-format=json > plan-dist-manifest.json\n",
+    },
+    Rewrite {
+        why: "plan: dist from its pinned archive, checked by SHA-256, instead of an installer piped to sh",
+        from: r#"      - name: Install dist
+        # we specify bash to get pipefail; it guards against the `curl` command
+        # failing. otherwise `sh` won't catch that `curl` returned non-0
+        shell: bash
+        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.34.0/cargo-dist-installer.sh | sh"
+"#,
+        to: r#"      - name: Install dist
+        # The release archive, checked against the SHA-256 dist publishes for it (Scorecard:
+        # pinned dependencies); bump both with cargo-dist-version.
+        shell: bash
+        env:
+          ARCHIVE: https://github.com/axodotdev/cargo-dist/releases/download/v0.34.0/cargo-dist-x86_64-unknown-linux-gnu.tar.xz
+          SHA256: 7fee44ff3ff71ed0064b32d4ec62fee6b58bd37c5887b12a86aedddc5af0c7b5
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf -o "$RUNNER_TEMP/dist.tar.xz" "$ARCHIVE"
+          echo "$SHA256  $RUNNER_TEMP/dist.tar.xz" | sha256sum -c -
+          mkdir -p ~/.cargo/bin
+          tar -xJf "$RUNNER_TEMP/dist.tar.xz" -C ~/.cargo/bin --strip-components=1 cargo-dist-x86_64-unknown-linux-gnu/dist
+"#,
+    },
+    Rewrite {
+        why: "build-local-artifacts: no rustup step for containers (there are none)",
+        from: r#"      - name: Install Rust non-interactively if not already installed
+        if: ${{ matrix.container }}
+        run: |
+          if ! command -v cargo > /dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          fi
+"#,
+        to: "",
+    },
+    Rewrite {
+        why: "build-global-artifacts: cargo-cyclonedx from its pinned archive, checked by SHA-256",
+        from: r#"      - name: Install cargo-cyclonedx
+        # we specify bash to get pipefail; it guards against the `curl` command
+        # failing. otherwise `sh` won't catch that `curl` return non-0
+        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/CycloneDX/cyclonedx-rust-cargo/releases/download/cargo-cyclonedx-0.5.5/cargo-cyclonedx-installer.sh | sh"
+        shell: bash
+"#,
+        to: r#"      - name: Install cargo-cyclonedx
+        # The release archive, checked against its published SHA-256 (Scorecard: pinned
+        # dependencies); bump both when dist moves to another cargo-cyclonedx.
+        shell: bash
+        env:
+          ARCHIVE: https://github.com/CycloneDX/cyclonedx-rust-cargo/releases/download/cargo-cyclonedx-0.5.5/cargo-cyclonedx-x86_64-unknown-linux-gnu.tar.xz
+          SHA256: 9136714bd6e1ac703f5c2c889af578d9783852886d6ebfe18d471555637ad2b3
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf -o "$RUNNER_TEMP/cyclonedx.tar.xz" "$ARCHIVE"
+          echo "$SHA256  $RUNNER_TEMP/cyclonedx.tar.xz" | sha256sum -c -
+          mkdir -p ~/.cargo/bin
+          tar -xJf "$RUNNER_TEMP/cyclonedx.tar.xz" -C ~/.cargo/bin --strip-components=1 cargo-cyclonedx-x86_64-unknown-linux-gnu/cargo-cyclonedx
+"#,
     },
     Rewrite {
         why: "build-local-artifacts: no container (dist sets none for kiwa's targets)",

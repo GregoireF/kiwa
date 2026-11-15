@@ -63,10 +63,18 @@ jobs:
           persist-credentials: false
           submodules: recursive
       - name: Install dist
-        # we specify bash to get pipefail; it guards against the `curl` command
-        # failing. otherwise `sh` won't catch that `curl` returned non-0
+        # The release archive, checked against the SHA-256 dist publishes for it (Scorecard:
+        # pinned dependencies); bump both with cargo-dist-version.
         shell: bash
-        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.34.0/cargo-dist-installer.sh | sh"
+        env:
+          ARCHIVE: https://github.com/axodotdev/cargo-dist/releases/download/v0.34.0/cargo-dist-x86_64-unknown-linux-gnu.tar.xz
+          SHA256: 7fee44ff3ff71ed0064b32d4ec62fee6b58bd37c5887b12a86aedddc5af0c7b5
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf -o "$RUNNER_TEMP/dist.tar.xz" "$ARCHIVE"
+          echo "$SHA256  $RUNNER_TEMP/dist.tar.xz" | sha256sum -c -
+          mkdir -p ~/.cargo/bin
+          tar -xJf "$RUNNER_TEMP/dist.tar.xz" -C ~/.cargo/bin --strip-components=1 cargo-dist-x86_64-unknown-linux-gnu/dist
       - name: Cache dist
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
@@ -127,13 +135,6 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
-      - name: Install Rust non-interactively if not already installed
-        if: ${{ matrix.container }}
-        run: |
-          if ! command -v cargo > /dev/null 2>&1; then
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          fi
       - name: Install dist
         if: runner.os != 'Windows'
         shell: bash
@@ -232,10 +233,18 @@ jobs:
           path: ~/.cargo/bin/
       - run: chmod +x ~/.cargo/bin/dist
       - name: Install cargo-cyclonedx
-        # we specify bash to get pipefail; it guards against the `curl` command
-        # failing. otherwise `sh` won't catch that `curl` return non-0
-        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/CycloneDX/cyclonedx-rust-cargo/releases/download/cargo-cyclonedx-0.5.5/cargo-cyclonedx-installer.sh | sh"
+        # The release archive, checked against its published SHA-256 (Scorecard: pinned
+        # dependencies); bump both when dist moves to another cargo-cyclonedx.
         shell: bash
+        env:
+          ARCHIVE: https://github.com/CycloneDX/cyclonedx-rust-cargo/releases/download/cargo-cyclonedx-0.5.5/cargo-cyclonedx-x86_64-unknown-linux-gnu.tar.xz
+          SHA256: 9136714bd6e1ac703f5c2c889af578d9783852886d6ebfe18d471555637ad2b3
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -LsSf -o "$RUNNER_TEMP/cyclonedx.tar.xz" "$ARCHIVE"
+          echo "$SHA256  $RUNNER_TEMP/cyclonedx.tar.xz" | sha256sum -c -
+          mkdir -p ~/.cargo/bin
+          tar -xJf "$RUNNER_TEMP/cyclonedx.tar.xz" -C ~/.cargo/bin --strip-components=1 cargo-cyclonedx-x86_64-unknown-linux-gnu/cargo-cyclonedx
       # Get all the local artifacts for the global tasks to use (for e.g. checksums)
       - name: Fetch local artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
