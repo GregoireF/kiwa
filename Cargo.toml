@@ -35,7 +35,7 @@ serde_json = { version = "1", features = ["preserve_order"] }
 tempfile = "3"
 toml = "0.8"
 unicode-width = "0.2"
-which = "7"
+which = "8"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
