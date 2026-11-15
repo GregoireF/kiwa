@@ -8,7 +8,7 @@ WORKDIR /src
 COPY . .
 RUN cargo build --release --locked -p kiwa
 
-FROM ghcr.io/charmbracelet/vhs:v0.9.0@sha256:4ed9aec4479b572958aea98f41160d0ff90db8a7a4fe34517186237b2e880f89
+FROM ghcr.io/charmbracelet/vhs:v0.12.1@sha256:ea49a6a1c529be83153e88321892b5585964418f0b9055e8c1e0d732194234a3
 # Node and npm run the demo's `hello greet` task. The image follows Debian `stable`, whose codename
 # changes between releases (bookworm → trixie): accept it rather than fail.
 RUN apt-get update --allow-releaseinfo-change \
