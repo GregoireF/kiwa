@@ -30,3 +30,13 @@ updates:
     commit-message:
       prefix: "👷 ci"
       include: scope
+  # The images of the demo recording (docs/demo/Dockerfile), pinned by digest.
+  - package-ecosystem: docker
+    directory: /docs/demo
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "📦️ build"
+      include: scope

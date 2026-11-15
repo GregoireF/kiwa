@@ -6,8 +6,8 @@
 //! after each generation, instead of being ignored:
 //!
 //! - permissions: none at the workflow level, and per job only what it needs;
-//! - `custom-publish-tap` grants `contents: read` (publish-tap.yml asks for it: without it the
-//!   whole workflow fails to start) and passes no secrets (publish-tap reads its key from its own
+//! - `custom-publish-tap` grants `contents: read` only (publish-tap.yml asks for it: without it
+//!   the whole workflow fails to start; it needs no id-token or packages) and passes no secrets (publish-tap reads its key from its own
 //!   `release` environment);
 //! - every `${{ … }}` of a `run:` moves into an environment variable; steps that ran in the
 //!   runner's default shell keep it (bash, pwsh on Windows), as two steps;
@@ -93,7 +93,7 @@ const REWRITES: &[Rewrite] = &[
     Rewrite {
         why: "custom-publish-tap: contents: read for publish-tap.yml, and no inherited secrets",
         from: "    secrets: inherit\n    # publish jobs get escalated permissions\n    permissions:\n      \"id-token\": \"write\"\n      \"packages\": \"write\"\n",
-        to: "    # publish-tap.yml reads HOMEBREW_TAP_SSH_KEY from its own `release` environment: no secrets\n    # to pass. It reads the release's assets, so it needs contents: read like every job.\n    permissions:\n      \"contents\": \"read\"\n      \"id-token\": \"write\"\n      \"packages\": \"write\"\n",
+        to: "    # publish-tap.yml reads HOMEBREW_TAP_SSH_KEY from its own `release` environment (no secrets to\n    # pass) and pushes to the tap over SSH: it only reads the release, so contents: read, and no\n    # id-token or packages.\n    permissions:\n      \"contents\": \"read\"\n",
     },
     Rewrite {
         why: "announce: read only",

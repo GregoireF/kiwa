@@ -358,12 +358,11 @@ jobs:
     uses: $/.github/workflows/publish-tap.yml
     with:
       plan: ${{ needs.plan.outputs.val }}
-    # publish-tap.yml reads HOMEBREW_TAP_SSH_KEY from its own `release` environment: no secrets
-    # to pass. It reads the release's assets, so it needs contents: read like every job.
+    # publish-tap.yml reads HOMEBREW_TAP_SSH_KEY from its own `release` environment (no secrets to
+    # pass) and pushes to the tap over SSH: it only reads the release, so contents: read, and no
+    # id-token or packages.
     permissions:
       "contents": "read"
-      "id-token": "write"
-      "packages": "write"
 
   announce:
     needs:
