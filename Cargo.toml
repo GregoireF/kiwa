@@ -7,7 +7,7 @@ exclude = ["fuzz"]
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 authors = ["kiwa contributors"]
 repository = "https://github.com/GregoireF/kiwa"
@@ -28,7 +28,7 @@ globset = { version = "0.4", default-features = false }
 ignore = "0.4"
 kdl = "6"
 nucleo-matcher = "0.3"
-ratatui = "0.29"
+ratatui = "0.30"
 rayon = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }

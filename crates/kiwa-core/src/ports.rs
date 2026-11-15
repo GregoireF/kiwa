@@ -46,15 +46,15 @@ pub fn explicit_port(words: &[&str]) -> Option<u16> {
         {
             return v.parse().ok();
         }
-        if matches!(*w, "--port" | "-p" | "--PORT") {
-            if let Some(p) = next {
-                return Some(p);
-            }
+        if matches!(*w, "--port" | "-p" | "--PORT")
+            && let Some(p) = next
+        {
+            return Some(p);
         }
-        if let Some(v) = w.strip_prefix("-p").filter(|v| !v.is_empty()) {
-            if let Ok(p) = v.parse() {
-                return Some(p);
-            }
+        if let Some(v) = w.strip_prefix("-p").filter(|v| !v.is_empty())
+            && let Ok(p) = v.parse()
+        {
+            return Some(p);
         }
         // `runserver 0.0.0.0:8001`, `http.server 9000`
         if (*w == "runserver" || w.ends_with("http.server")) && i + 1 < words.len() {
@@ -132,10 +132,8 @@ pub fn port_of(dir: &Path, t: &Task) -> Option<u16> {
     }
     let default = default_port(&words)?;
     let vite = words.iter().any(|w| w.ends_with("vite"));
-    if vite {
-        if let Some(p) = vite_port(dir) {
-            return Some(p);
-        }
+    if vite && let Some(p) = vite_port(dir) {
+        return Some(p);
     }
     Some(env_port(dir).unwrap_or(default))
 }
@@ -177,15 +175,14 @@ pub fn compose_ports(text: &str, service: &str) -> Vec<u16> {
         let mut host = |spec: &str| {
             let spec = spec.trim().trim_matches(['"', '\'']);
             let parts: Vec<&str> = spec.split(':').collect();
-            if parts.len() >= 2 {
-                if let Ok(p) = parts[parts.len() - 2]
+            if parts.len() >= 2
+                && let Ok(p) = parts[parts.len() - 2]
                     .split('-')
                     .next()
                     .unwrap_or("")
                     .parse()
-                {
-                    out.push(p);
-                }
+            {
+                out.push(p);
             }
         };
         if let Some(pd) = in_ports {

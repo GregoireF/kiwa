@@ -456,23 +456,23 @@ pub fn github_jobs(text: &str) -> Vec<Job> {
             }
             _ => (t, d),
         };
-        if let Some(s) = step.as_mut().filter(|s| key_indent > s.0) {
-            if let Some((key, value)) = key_line.split_once(':') {
-                match key.trim() {
-                    "run" => {
-                        let (v, next) = scalar(&lines, i, value, key_indent);
-                        s.1 = Some(v.trim_end().to_owned());
-                        i = next;
-                        continue;
-                    }
-                    "working-directory" => s.2 = Some(scalar(&lines, i, value, key_indent).0),
-                    "uses" => s.3 = true,
-                    "shell" => {
-                        let sh = value.trim();
-                        s.3 |= !(sh.starts_with("bash") || sh.starts_with("sh"));
-                    }
-                    _ => {}
+        if let Some(s) = step.as_mut().filter(|s| key_indent > s.0)
+            && let Some((key, value)) = key_line.split_once(':')
+        {
+            match key.trim() {
+                "run" => {
+                    let (v, next) = scalar(&lines, i, value, key_indent);
+                    s.1 = Some(v.trim_end().to_owned());
+                    i = next;
+                    continue;
                 }
+                "working-directory" => s.2 = Some(scalar(&lines, i, value, key_indent).0),
+                "uses" => s.3 = true,
+                "shell" => {
+                    let sh = value.trim();
+                    s.3 |= !(sh.starts_with("bash") || sh.starts_with("sh"));
+                }
+                _ => {}
             }
         }
         i += 1;
@@ -501,15 +501,15 @@ pub fn gitlab_jobs(text: &str) -> Vec<Job> {
     let mut current: Option<(String, Vec<String>, Vec<String>)> = None; // name, before, script
     let mut key: Option<(&str, usize)> = None; // collecting `script`/`before_script` items
     let mut finish = |c: Option<(String, Vec<String>, Vec<String>)>| {
-        if let Some((name, mut before, script)) = c {
-            if !script.is_empty() {
-                before.extend(script);
-                jobs.push(Job {
-                    name,
-                    lines: before,
-                    skipped: 0,
-                });
-            }
+        if let Some((name, mut before, script)) = c
+            && !script.is_empty()
+        {
+            before.extend(script);
+            jobs.push(Job {
+                name,
+                lines: before,
+                skipped: 0,
+            });
         }
     };
     let mut i = 0;
@@ -524,10 +524,11 @@ pub fn gitlab_jobs(text: &str) -> Vec<Job> {
         if d == 0 {
             finish(current.take());
             key = None;
-            if let Some(name) = t.strip_suffix(':') {
-                if !name.starts_with('.') && !KEYWORDS.contains(&name) {
-                    current = Some((name.trim_matches(['"', '\'']).to_owned(), vec![], vec![]));
-                }
+            if let Some(name) = t.strip_suffix(':')
+                && !name.starts_with('.')
+                && !KEYWORDS.contains(&name)
+            {
+                current = Some((name.trim_matches(['"', '\'']).to_owned(), vec![], vec![]));
             }
             i += 1;
             continue;

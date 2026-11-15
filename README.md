@@ -11,7 +11,7 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/GregoireF/kiwa/badge)](https://scorecard.dev/viewer/?uri=github.com/GregoireF/kiwa)
 <br>
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
-[![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange)](Cargo.toml)
+[![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange)](Cargo.toml)
 [![Good first issues](https://img.shields.io/github/issues/GregoireF/kiwa/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/GregoireF/kiwa/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
 
 [Install](#install) · [Quick start](docs/tutorials/first-run.md) · [Documentation](docs/README.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)

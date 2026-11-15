@@ -2,3 +2,8 @@
 # `cargo xtask <task>`: the developer tasks CI runs too (xtask/src/main.rs).
 [alias]
 xtask = "run -q -p xtask --"
+
+# Pick dependency versions that build with the workspace's `rust-version` (the MSRV) when one
+# exists, so that `cargo update` and Dependabot never raise it by accident.
+[resolver]
+incompatible-rust-versions = "fallback"

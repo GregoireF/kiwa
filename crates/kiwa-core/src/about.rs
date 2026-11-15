@@ -129,20 +129,19 @@ pub fn origin_url(config: &str) -> Option<String> {
             in_origin = t == "[remote \"origin\"]";
             continue;
         }
-        if in_origin {
-            if let Some(url) = t
+        if in_origin
+            && let Some(url) = t
                 .strip_prefix("url")
                 .map(str::trim_start)
                 .and_then(|r| r.strip_prefix('='))
-            {
-                let url = url.trim();
-                // git@github.com:owner/repo.git → https://github.com/owner/repo
-                let url = match url.strip_prefix("git@").and_then(|r| r.split_once(':')) {
-                    Some((host, path)) => format!("https://{host}/{path}"),
-                    None => url.to_owned(),
-                };
-                return Some(url.trim_end_matches(".git").to_owned());
-            }
+        {
+            let url = url.trim();
+            // git@github.com:owner/repo.git → https://github.com/owner/repo
+            let url = match url.strip_prefix("git@").and_then(|r| r.split_once(':')) {
+                Some((host, path)) => format!("https://{host}/{path}"),
+                None => url.to_owned(),
+            };
+            return Some(url.trim_end_matches(".git").to_owned());
         }
     }
     None

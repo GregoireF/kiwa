@@ -127,6 +127,32 @@ fn yarn_1_runs_hooks_and_needs_a_separator() {
     check(&root, 1);
 }
 
+/// Whether `yarn` in `dir` is Yarn 2 or later, as Corepack provides it for a project whose
+/// `packageManager` asks for one. A global Yarn 1 without Corepack is not: the test is then
+/// skipped locally, and fails in CI where every runner is required.
+fn yarn_berry_in(dir: &Path) -> bool {
+    let version = which::which("yarn").ok().and_then(|yarn| {
+        Command::new(yarn)
+            .arg("--version")
+            .current_dir(dir)
+            .env("COREPACK_ENABLE_DOWNLOAD_PROMPT", "0")
+            .output()
+            .ok()
+            .filter(|o| o.status.success())
+            .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
+    });
+    let berry = version
+        .as_deref()
+        .and_then(|v| v.split('.').next()?.parse::<u32>().ok())
+        .is_some_and(|major| major >= 2);
+    if !berry && required() {
+        panic!(
+            "Yarn 2+ is required in CI (KIWA_REQUIRE_RUNNERS=1) but `yarn --version` gave {version:?}: enable Corepack"
+        );
+    }
+    berry
+}
+
 #[test]
 fn yarn_4_skips_hooks_and_lists_them() {
     if !available("yarn") {
@@ -134,6 +160,9 @@ fn yarn_4_skips_hooks_and_lists_them() {
     }
     let root = fixture("yarn4", Some("yarn@4.5.3"));
     let proj = root.join("proj");
+    if !yarn_berry_in(&proj) {
+        return;
+    }
     // Yarn 2+ refuses to run scripts before an install.
     let yarn = which::which("yarn").unwrap();
     let st = Command::new(yarn)

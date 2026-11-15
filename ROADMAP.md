@@ -129,7 +129,7 @@ Robustness and safety
 - [x] K-16 Signals forwarded to the task and no child left behind when kw or its terminal goes away (process group on Unix, job object on Windows)
 
 Quality
-- [x] 200+ tests, ≥ 90 % line coverage, clippy `-D warnings`, MSRV 1.85
+- [x] 200+ tests, ≥ 90 % line coverage, clippy `-D warnings`, MSRV 1.88
 - [x] K-18 Real package-manager tests in CI (npm, pnpm, Yarn 1, Yarn 4, Bun), none skipped there
 - [x] K-19 Keystroke budget test on a polyglot workspace of 190 tasks (measured: worst 5 + Enter, mean 2.9 + Enter)
 - [x] K-20 Performance budgets (`cargo xtask bench`) enforced in CI

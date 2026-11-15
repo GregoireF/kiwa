@@ -78,14 +78,14 @@ const SOURCES: &[(Ecosystem, &[&str])] = &[
 ];
 
 fn default_source(eco: Ecosystem, dir: &Path) -> String {
-    if eco == Ecosystem::Dotnet {
-        if let Ok(rd) = fs::read_dir(dir) {
-            for e in rd.flatten() {
-                let n = e.file_name().to_string_lossy().into_owned();
-                let l = n.to_lowercase();
-                if l.ends_with(".sln") || l.ends_with(".slnx") || l.ends_with("proj") {
-                    return n;
-                }
+    if eco == Ecosystem::Dotnet
+        && let Ok(rd) = fs::read_dir(dir)
+    {
+        for e in rd.flatten() {
+            let n = e.file_name().to_string_lossy().into_owned();
+            let l = n.to_lowercase();
+            if l.ends_with(".sln") || l.ends_with(".slnx") || l.ends_with("proj") {
+                return n;
             }
         }
     }
@@ -427,10 +427,10 @@ fn npmrc_value(dir: &Path, root: &Path, key: &str) -> Option<String> {
     for ancestor in dir.ancestors() {
         if let Some(text) = read(ancestor, ".npmrc") {
             for line in text.lines() {
-                if let Some((k, v)) = line.split_once('=') {
-                    if k.trim() == key {
-                        return Some(v.trim().to_lowercase());
-                    }
+                if let Some((k, v)) = line.split_once('=')
+                    && k.trim() == key
+                {
+                    return Some(v.trim().to_lowercase());
                 }
             }
         }
@@ -481,10 +481,10 @@ fn yarn_berry(dir: &Path, root: &Path, pkg: &Value) -> bool {
     let mut rc = false;
     for folder in up_to_root(dir, root) {
         let lock = folder.join("yarn.lock");
-        if lock.is_file() {
-            if let Some(modern) = yarn_lock_is_modern(&lock) {
-                return modern;
-            }
+        if lock.is_file()
+            && let Some(modern) = yarn_lock_is_modern(&lock)
+        {
+            return modern;
         }
         rc = rc || folder.join(".yarnrc.yml").is_file();
     }
@@ -562,17 +562,17 @@ fn deno(dir: &Path, _: &Path) -> Option<Detection> {
     let file = first_existing(dir, &["deno.json", "deno.jsonc"])?;
     let mut tasks = Vec::new();
     // deno.jsonc may contain comments; we then still report the project, without tasks.
-    if let Some(v) = read(dir, file).and_then(|t| serde_json::from_str::<Value>(&t).ok()) {
-        if let Some(obj) = v.get("tasks").and_then(Value::as_object) {
-            for (name, cmd) in obj {
-                let desc = cmd
-                    .as_str()
-                    .or_else(|| cmd.get("description").and_then(Value::as_str));
-                tasks.push(
-                    Task::new(name, "deno", &["deno", "task", name])
-                        .with_description(desc.map(str::to_owned)),
-                );
-            }
+    if let Some(v) = read(dir, file).and_then(|t| serde_json::from_str::<Value>(&t).ok())
+        && let Some(obj) = v.get("tasks").and_then(Value::as_object)
+    {
+        for (name, cmd) in obj {
+            let desc = cmd
+                .as_str()
+                .or_else(|| cmd.get("description").and_then(Value::as_str));
+            tasks.push(
+                Task::new(name, "deno", &["deno", "task", name])
+                    .with_description(desc.map(str::to_owned)),
+            );
         }
     }
     found(Ecosystem::Deno, tasks)
@@ -599,11 +599,11 @@ fn rust(dir: &Path, _: &Path) -> Option<Detection> {
         tasks.push(Task::new("run", "cargo", &["cargo", "run"]));
     }
     // Project-local cargo aliases (`.cargo/config.toml` [alias]).
-    if let Some(cfg) = read(dir, ".cargo/config.toml").and_then(|t| t.parse::<toml::Table>().ok()) {
-        if let Some(alias) = cfg.get("alias").and_then(|a| a.as_table()) {
-            for name in alias.keys() {
-                tasks.push(Task::new(name, "cargo", &["cargo", name]));
-            }
+    if let Some(cfg) = read(dir, ".cargo/config.toml").and_then(|t| t.parse::<toml::Table>().ok())
+        && let Some(alias) = cfg.get("alias").and_then(|a| a.as_table())
+    {
+        for name in alias.keys() {
+            tasks.push(Task::new(name, "cargo", &["cargo", name]));
         }
     }
     found(Ecosystem::Rust, tasks)
@@ -999,10 +999,10 @@ pub fn parse_just_recipes(text: &str) -> Vec<(String, Option<String>)> {
                 continue;
             }
             let head = line[..colon].trim_start_matches('@');
-            if let Some(name) = head.split_whitespace().next() {
-                if !name.starts_with('_') {
-                    out.push((name.to_owned(), doc.take()));
-                }
+            if let Some(name) = head.split_whitespace().next()
+                && !name.starts_with('_')
+            {
+                out.push((name.to_owned(), doc.take()));
             }
         }
         doc = None;
@@ -1060,10 +1060,10 @@ pub fn parse_taskfile_tasks(text: &str) -> Vec<(String, Option<String>)> {
             {
                 out.push((name.trim_matches(['"', '\'']).to_owned(), None));
             }
-        } else if depth > level {
-            if let (Some(d), Some(last)) = (trimmed.strip_prefix("desc:"), out.last_mut()) {
-                last.1 = Some(d.trim().trim_matches(['"', '\'']).to_owned());
-            }
+        } else if depth > level
+            && let (Some(d), Some(last)) = (trimmed.strip_prefix("desc:"), out.last_mut())
+        {
+            last.1 = Some(d.trim().trim_matches(['"', '\'']).to_owned());
         }
     }
     out
@@ -1079,15 +1079,14 @@ fn mise(dir: &Path, _: &Path) -> Option<Detection> {
     if let Some(cfg) = file
         .and_then(|f| read(dir, f))
         .and_then(|t| t.parse::<toml::Table>().ok())
+        && let Some(t) = cfg.get("tasks").and_then(|t| t.as_table())
     {
-        if let Some(t) = cfg.get("tasks").and_then(|t| t.as_table()) {
-            for (name, def) in t {
-                let desc = def
-                    .get("description")
-                    .and_then(|d| d.as_str())
-                    .map(str::to_owned);
-                tasks.push(Task::new(name, "mise", &["mise", "run", name]).with_description(desc));
-            }
+        for (name, def) in t {
+            let desc = def
+                .get("description")
+                .and_then(|d| d.as_str())
+                .map(str::to_owned);
+            tasks.push(Task::new(name, "mise", &["mise", "run", name]).with_description(desc));
         }
     }
     for d in task_dirs {

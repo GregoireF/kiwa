@@ -11,6 +11,8 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
+# Two binaries (kiwa, kw); `cargo run -p kiwa` runs the main one.
+default-run = "kiwa"
 
 # The program lives in the library; `kiwa` and `kw` are two names for it (ROADMAP K-77).
 [lib]

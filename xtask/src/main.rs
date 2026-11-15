@@ -10,14 +10,16 @@
 //! - `demo`         renders docs/demo/demo.tape to docs/demo/demo.gif with VHS, on
 //!   examples/demo, with a throwaway config and history
 //! - `outdated`     pinned tools (zizmor, actionlint, dist, ship) against their latest release
-//! - `dist-generate` regenerates .github/workflows/release.yml with dist, then fixes the
-//!   local publish job reference (dist 0.34 writes `uses: $/...`)
+//! - `dist-generate` regenerates .github/workflows/release.yml with dist, then hardens it
+//!   (release.rs); `--harden` only hardens the file as it is
+
+mod release;
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode, Stdio};
 use std::time::{Duration, Instant};
 
-const USAGE: &str = "usage: cargo xtask <check | bench [--markdown] | snapshot | sandbox [--reuse] [-- kw args] | demo | outdated [--markdown] | dist-generate>";
+const USAGE: &str = "usage: cargo xtask <check | bench [--markdown] | snapshot | sandbox [--reuse] [-- kw args] | demo | outdated [--markdown] | dist-generate [--harden]>";
 
 /// Performance budgets (ROADMAP 0.1 exit condition), checked on the release binary.
 /// Medians of 15 runs, end to end (process start to exit), on the CI Linux runner.
@@ -52,7 +54,7 @@ fn main() -> ExitCode {
         Some("sandbox") => fresh_machine(rest),
         Some("demo") => demo(),
         Some("outdated") => outdated(rest),
-        Some("dist-generate") => dist_generate(),
+        Some("dist-generate") => dist_generate(rest),
         _ => {
             eprintln!("{USAGE}");
             return ExitCode::from(2);
@@ -354,17 +356,18 @@ fn demo() -> Result<u8, String> {
     Ok(0)
 }
 
-fn dist_generate() -> Result<u8, String> {
-    run("dist", &["generate"])?;
+/// `dist generate`, then the hardening of release.yml (xtask/src/release.rs). With `--harden`,
+/// only the hardening, on the file as it is.
+fn dist_generate(args: &[String]) -> Result<u8, String> {
+    if !args.iter().any(|a| a == "--harden") {
+        run("dist", &["generate"])?;
+    }
     let path = root().join(".github/workflows/release.yml");
     let text = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
-    let fixed = text.replace("uses: $/.github/workflows/", "uses: ./.github/workflows/");
-    if fixed != text {
-        std::fs::write(&path, fixed).map_err(|e| e.to_string())?;
-        eprintln!(
-            "fixed the local publish job reference in {}",
-            path.display()
-        );
+    let hardened = release::harden(&text)?;
+    if hardened != text {
+        std::fs::write(&path, hardened).map_err(|e| e.to_string())?;
+        eprintln!("hardened {}", path.display());
     }
     Ok(0)
 }
