@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Release configuration for dist (https://github.com/axodotdev/cargo-dist).
 # Keys from the official reference: book/src/reference/config.md.
 # After editing, regenerate the release workflow with: dist generate

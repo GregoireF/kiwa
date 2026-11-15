@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Fuzzy ranking shared by the TUI and by "did you mean" suggestions.
 
 use nucleo_matcher::pattern::{CaseMatching, Normalization, Pattern};

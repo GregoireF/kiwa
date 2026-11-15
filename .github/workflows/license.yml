@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# Every source file starts with the SPDX header of .github/license-header.txt (CONTRIBUTING.md),
+# checked with GregoireF/addlicense. To add missing headers locally:
+#   addlicense --template .github/license-header.txt --ignore "target,fuzz/target,examples,docs/demo,*.md" .
+name: license
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: license-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  headers:
+    name: license headers
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: GregoireF/addlicense-action@d6b6efe93aadbe35d9c325ccb6af232127342c23 # v1.0.1
+        with:
+          # Pinned by commit, the action cannot read its version from the ref.
+          version: v1.0.1
+          args: --check --template .github/license-header.txt --ignore "target,fuzz/target,examples,docs/demo,*.md" .

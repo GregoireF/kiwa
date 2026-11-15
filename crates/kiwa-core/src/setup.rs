@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `kiwa setup`: the steps that get a freshly cloned project running, worked out from its files.
 //! Static like discovery: only file checks; the steps themselves run later, once confirmed.
 //!

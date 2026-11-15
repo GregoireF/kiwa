@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Colour and text attributes for the whole interface, decided here and nowhere else:
 //! - the accent marks the cursor position: selected row, active scope, prompt; a dimmed
 //!   variant draws the borders;

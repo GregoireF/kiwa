@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `kw init`: first-run setup, one screen. Shows the folders that exist with how many projects
 //! and tasks each holds; the user ticks one or more and presses Enter. Nothing else is asked:
 //! the accent keeps its current value (`kw config set accent …` or `kw init --accent` change it).

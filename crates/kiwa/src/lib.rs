@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! kiwa: find any project, run any task. Built for humans and AI agents.
 //!
 //! The command is `kiwa`; `kw` is the same program under a shorter name, installed where it is

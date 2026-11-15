@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `kiwa about`: what a project is and how to start it, from its files alone.
 //!
 //! Identity comes from the manifests (`package.json`, `Cargo.toml`, `pyproject.toml`,

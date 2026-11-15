@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Process execution. Argv is passed as-is. A `shell` task's argv is `sh -c <line> sh`: the
 //! shell is named in the task, shown, and confirmed before it runs (ADR 0009).
 
