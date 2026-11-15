@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! All user-facing output. Human mode: text on stdout, diagnostics on stderr.
 //! JSON mode: exactly one `kiwa/v1` envelope on stdout (see docs/reference/json-and-exit-codes.md).
 

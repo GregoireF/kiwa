@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Arguments typed in the picker → an argv, without a shell.
 //!
 //! A word ends at unquoted whitespace. Inside `'…'` everything is literal; inside `"…"`, `\"`

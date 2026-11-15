@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tasks people already wrote down elsewhere: `Procfile` processes, VS Code tasks, and the
 //! `run:` steps of CI jobs (GitHub Actions, GitLab CI). Like script folders, these add tasks to
 //! a project or a repository; they never make a project on their own. Lines that need a shell

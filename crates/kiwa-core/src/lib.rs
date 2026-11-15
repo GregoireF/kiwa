@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! kiwa-core: zero-config, polyglot project and task discovery.
 //!
 //! Design rules (see `docs/explanation/architecture.md`):

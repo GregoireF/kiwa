@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Minimal git introspection by reading files directly (no git binary needed, ~µs).
 
 use std::fs;

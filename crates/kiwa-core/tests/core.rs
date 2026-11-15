@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Library-level tests: detector edge cases, resolution, ranking, git.
 
 use kiwa_core::detect::{

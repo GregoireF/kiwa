@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Shell integration, following the `eval "$(tool init <shell>)"` pattern popularised by
 //! zoxide and starship. One line in the shell profile gives:
 //! - `kcd <project>`: cd into a project (a child process cannot change its parent's cwd),

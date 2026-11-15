@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Where a dev server will listen, worked out from files before it runs: a `--port` in the
 //! command, the tool's config (`vite.config.*`), `PORT` in `.env`, Compose `ports`, and the
 //! tool's documented default. Static like discovery; the output of the task is never read.

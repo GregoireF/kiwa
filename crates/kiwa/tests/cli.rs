@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! End-to-end tests of the `kw` binary. Every test runs in its own temp folder with its own
 //! config, state and home directory, so nothing touches the developer's machine.
 

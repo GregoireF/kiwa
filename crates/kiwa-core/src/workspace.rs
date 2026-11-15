@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Monorepo members, from what each ecosystem declares: `workspaces` in package.json (npm, Yarn,
 //! Bun), `pnpm-workspace.yaml`, Cargo `[workspace]`, `go.work`, uv `[tool.uv.workspace]`, Gradle
 //! `settings.gradle(.kts)` and .NET `.sln` files. Static, like every detector: files are read,

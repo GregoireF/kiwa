@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Candidates for `kw init`, found rather than guessed: kiwa looks where a person is likely
 //! to keep code and proposes the folders where projects actually cluster, each with how many
 //! projects and tasks it holds, busiest first.

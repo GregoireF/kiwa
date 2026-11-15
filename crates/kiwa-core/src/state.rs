@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Run history with frecency ranking (frequency x recency), stored as JSON in the
 //! platform state/data directory. Corrupt or missing state is never fatal.
 

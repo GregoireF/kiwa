@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `kw doctor`: what kiwa sees on this machine. Read-only: environment variables, files and
 //! `PATH` lookups only; no process is started.
 //!

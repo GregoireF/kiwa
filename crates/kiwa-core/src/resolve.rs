@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Turning user (or agent) input into a project and a task.
 //!
 //! Safety rule: fuzzy matching is used for *suggestions only*. A name that does not

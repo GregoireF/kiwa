@@ -84,7 +84,10 @@ The conventions are those of [ship-it](https://github.com/GregoireF/ship-it):
   `✅ test: …`, `♻️ refactor: …`, `👷 ci: …`.
 - **Sign-off:** every commit carries a [Developer Certificate of Origin](https://developercertificate.org)
   sign-off. Use `git commit -s`; to fix the last commit, `git commit --amend -s --no-edit`.
-- **License header:** a new source file starts with `SPDX-License-Identifier: MIT OR Apache-2.0`.
+- **License header:** a new source file (`.rs`, `.toml`, `.yml`…) starts with
+  `SPDX-License-Identifier: MIT OR Apache-2.0` in its comment syntax. CI checks it with
+  [addlicense](https://github.com/GregoireF/addlicense), which also adds missing ones:
+  `addlicense --template .github/license-header.txt --ignore "target,fuzz/target,examples,docs/demo,*.md" .`
 
 ## 6. Open the pull request
 

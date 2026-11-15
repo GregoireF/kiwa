@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Interactive picker: one fuzzy search across every project *and* task.
 //! Every action has a key, every key is listed in the footer, and the footer entries that act
 //! on the list are clickable.

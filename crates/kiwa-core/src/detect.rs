@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Static detectors. Each one reads manifests in a single directory and returns
 //! the ecosystem plus the tasks it exposes. Detectors never execute anything.
 
