@@ -12,19 +12,18 @@ Releases are built by [dist](https://github.com/axodotdev/cargo-dist) from a `v*
    Homebrew/Scoop tap is **not** updated. Keep candidates for two weeks before the final tag.
 4. Tag (signed) and push: `git tag -s v0.1.0 -m v0.1.0 && git push origin v0.1.0`. dist
    builds 7 targets, the shell and PowerShell installers, a CycloneDX SBOM and build
-   provenance, then calls the publish jobs: `publish-crates.yml` publishes `kiwa-core` then
-   `kiwa` to crates.io, and `publish-tap.yml` writes `Formula/kiwa.rb` and `bucket/kiwa.json`
-   into `GregoireF/homebrew-tap`. Each waits for an approval of the `release` environment.
-5. Verify an archive: `gh attestation verify kiwa-x86_64-unknown-linux-gnu.tar.xz -R GregoireF/kiwa`.
+   provenance, then calls the publish job: `publish-crates.yml` publishes `kiwa-core` then
+   `kiwa` to crates.io, after an approval of the `release` environment.
+5. Within 30 minutes, `GregoireF/homebrew-tap` picks the release up on its own: it checks
+   every archive against `sha256.sum` and its provenance, writes `Formula/kiwa.rb` and
+   `bucket/kiwa.json`, tests the installs on macOS, Linux and Windows, then publishes. The
+   archive names and the binaries (`kiwa`, `kw`) are declared in the tap's `tools.yml`:
+   change them together with `dist-workspace.toml`.
+6. Verify an archive: `gh attestation verify kiwa-x86_64-unknown-linux-gnu.tar.xz -R GregoireF/kiwa`.
 
 ## One-time setup
 
 - Environment `release` with a required reviewer: the human gate before publishing.
-- A deploy key for the tap, as for ship-it (the job token only reaches this repository):
-  generate an ed25519 key pair, add the public half to `GregoireF/homebrew-tap` as a deploy
-  key with write access (`gh repo deploy-key add … --allow-write`), store the private half as
-  the environment secret `HOMEBREW_TAP_SSH_KEY` of `release` (`gh secret set … --env release`),
-  then delete both files from your disk.
 - A crates.io API token scoped to `publish-new` and `publish-update` for `kiwa` and
   `kiwa-core`, stored as the environment secret `CARGO_REGISTRY_TOKEN` of `release`
   (`gh secret set CARGO_REGISTRY_TOKEN --env release -R GregoireF/kiwa`, pasted at the prompt).

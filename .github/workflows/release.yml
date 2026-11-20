@@ -367,24 +367,9 @@ jobs:
     uses: $/.github/workflows/publish-crates.yml
     with:
       plan: ${{ needs.plan.outputs.val }}
-    # The publish workflows read CARGO_REGISTRY_TOKEN and HOMEBREW_TAP_SSH_KEY from their `release`
-    # environment, which GitHub hands to a called workflow only when the caller inherits secrets;
-    # the repository has none of its own. They only read the release and the sources.
-    secrets: inherit # zizmor: ignore[secrets-inherit]
-    permissions:
-      "contents": "read"
-
-  custom-publish-tap:
-    needs:
-      - plan
-      - host
-    if: ${{ !fromJson(needs.plan.outputs.val).announcement_is_prerelease || fromJson(needs.plan.outputs.val).publish_prereleases }}
-    uses: $/.github/workflows/publish-tap.yml
-    with:
-      plan: ${{ needs.plan.outputs.val }}
-    # The publish workflows read CARGO_REGISTRY_TOKEN and HOMEBREW_TAP_SSH_KEY from their `release`
-    # environment, which GitHub hands to a called workflow only when the caller inherits secrets;
-    # the repository has none of its own. They only read the release and the sources.
+    # The publish workflow reads CARGO_REGISTRY_TOKEN from its `release` environment, which
+    # GitHub hands to a called workflow only when the caller inherits secrets; the repository
+    # has none of its own. It only reads the release and the sources.
     secrets: inherit # zizmor: ignore[secrets-inherit]
     permissions:
       "contents": "read"
@@ -394,11 +379,10 @@ jobs:
       - plan
       - host
       - custom-publish-crates
-      - custom-publish-tap
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!
-    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-crates.result == 'skipped' || needs.custom-publish-crates.result == 'success') && (needs.custom-publish-tap.result == 'skipped' || needs.custom-publish-tap.result == 'success') }}
+    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-crates.result == 'skipped' || needs.custom-publish-crates.result == 'success') }}
     runs-on: "ubuntu-22.04"
     permissions:
       "contents": "read"

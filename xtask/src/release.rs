@@ -6,11 +6,12 @@
 //! after each generation, instead of being ignored:
 //!
 //! - permissions: none at the workflow level, and per job only what it needs;
-//! - the custom publish jobs (`custom-publish-crates`, `custom-publish-tap`) grant
-//!   `contents: read` only (their workflows ask for it: without it the whole workflow fails to
-//!   start; they need no id-token or packages). They keep `secrets: inherit`: a called workflow
-//!   gets its `release` environment's secrets only then (measured on the first v0.1.0 run, where
-//!   both arrived empty without it), and the repository has no secrets of its own to leak;
+//! - the custom publish job (`custom-publish-crates`) grants `contents: read` only (its
+//!   workflow asks for it: without it the whole workflow fails to start; it needs no id-token
+//!   or packages). It keeps `secrets: inherit`: a called workflow gets its `release`
+//!   environment's secrets only then (measured on the first v0.1.0 run, where they arrived
+//!   empty without it), and the repository has no secrets of its own to leak. Homebrew and
+//!   Scoop need no job: GregoireF/homebrew-tap pulls each release;
 //! - every `${{ … }}` of a `run:` moves into an environment variable; steps that ran in the
 //!   runner's default shell keep it (bash, pwsh on Windows), as two steps;
 //! - no `container:` (dist sets none for kiwa's targets), so no rustup step for one;
@@ -153,14 +154,14 @@ const REWRITES: &[Rewrite] = &[
         to: "          RELEASE_COMMIT: \"${{ github.sha }}\"\n          RELEASE_TAG: \"${{ needs.plan.outputs.tag }}\"\n        run: |\n          # Write and read notes from a file to avoid quoting breaking things\n          echo \"$ANNOUNCEMENT_BODY\" > \"$RUNNER_TEMP/notes.txt\"\n\n          gh release create \"$RELEASE_TAG\"",
     },
     Rewrite {
-        why: "custom publish jobs: contents: read, secrets inherited for their environment",
+        why: "custom publish job: contents: read, secrets inherited for its environment",
         from: "    secrets: inherit\n    # publish jobs get escalated permissions\n    permissions:\n      \"id-token\": \"write\"\n      \"packages\": \"write\"\n",
-        to: "    # The publish workflows read CARGO_REGISTRY_TOKEN and HOMEBREW_TAP_SSH_KEY from their `release`\n    # environment, which GitHub hands to a called workflow only when the caller inherits secrets;\n    # the repository has none of its own. They only read the release and the sources.\n    secrets: inherit # zizmor: ignore[secrets-inherit]\n    permissions:\n      \"contents\": \"read\"\n",
+        to: "    # The publish workflow reads CARGO_REGISTRY_TOKEN from its `release` environment, which\n    # GitHub hands to a called workflow only when the caller inherits secrets; the repository\n    # has none of its own. It only reads the release and the sources.\n    secrets: inherit # zizmor: ignore[secrets-inherit]\n    permissions:\n      \"contents\": \"read\"\n",
     },
     Rewrite {
         why: "announce: read only",
-        from: "|| needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n",
-        to: "|| needs.custom-publish-tap.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n    permissions:\n      \"contents\": \"read\"\n",
+        from: "|| needs.custom-publish-crates.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n",
+        to: "|| needs.custom-publish-crates.result == 'success') }}\n    runs-on: \"ubuntu-22.04\"\n    permissions:\n      \"contents\": \"read\"\n",
     },
 ];
 
