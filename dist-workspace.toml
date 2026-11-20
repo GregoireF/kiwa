@@ -26,9 +26,9 @@ install-path = "CARGO_HOME"
 # supply-chain evidence expected by the EU Cyber Resilience Act.
 github-attestations = true
 cargo-cyclonedx = true
-# Custom jobs: crates.io (publish-crates.yml), then the Homebrew formula + Scoop manifest pushed
-# to GregoireF/homebrew-tap (publish-tap.yml).
-publish-jobs = ["./publish-crates", "./publish-tap"]
+# Custom job: crates.io (publish-crates.yml). Homebrew and Scoop: GregoireF/homebrew-tap pulls
+# each stable release on its own and verifies its provenance; nothing to publish from here.
+publish-jobs = ["./publish-crates"]
 # Check the release plan on every pull request.
 pr-run-mode = "plan"
 # `cargo xtask dist-generate` hardens dist's release.yml (xtask/src/release.rs), so the file

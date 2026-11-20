@@ -9,7 +9,7 @@ paths:
       - 'SC2086'
       # Style only: dist appends to $GITHUB_OUTPUT one line at a time.
       - 'SC2129'
-      # `uses: $/.github/workflows/publish-tap.yml`: GitHub's self-repository syntax, which dist
+      # `uses: $/.github/workflows/publish-crates.yml`: GitHub's self-repository syntax, which dist
       # writes and zizmor asks for. actionlint 1.7.12 does not know it yet; GitHub accepts it
       # (measured: the release workflow starts and plans on pull requests with it).
       - 'reusable workflow call "\$/'
