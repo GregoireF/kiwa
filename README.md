@@ -16,6 +16,11 @@ One fuzzy search over every task of every project on your machine, for you and f
 [![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange?logo=rust)](Cargo.toml)
 [![docs.rs](https://img.shields.io/docsrs/kiwa-core?label=docs.rs%20kiwa-core)](https://docs.rs/kiwa-core)
 [![Good first issues](https://img.shields.io/github/issues/GregoireF/kiwa/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/GregoireF/kiwa/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+<br>
+[![homebrew](https://img.shields.io/endpoint?url=https://gregoiref.github.io/homebrew-tap/badges/kiwa/homebrew.json)](https://gregoiref.github.io/homebrew-tap/kiwa/)
+[![scoop](https://img.shields.io/endpoint?url=https://gregoiref.github.io/homebrew-tap/badges/kiwa/scoop.json)](https://gregoiref.github.io/homebrew-tap/kiwa/)
+[![provenance](https://img.shields.io/endpoint?url=https://gregoiref.github.io/homebrew-tap/badges/kiwa/provenance.json)](https://gregoiref.github.io/homebrew-tap/kiwa/)
+[![install-tests](https://img.shields.io/endpoint?url=https://gregoiref.github.io/homebrew-tap/badges/kiwa/install-tests.json)](https://gregoiref.github.io/homebrew-tap/kiwa/)
 
 [Install](#install) · [Quick start](docs/tutorials/first-run.md) · [Documentation](docs/README.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)
 
@@ -98,7 +103,9 @@ cargo install kiwa --locked                            # any platform, Rust 1.88
 ```
 
 Each [release](https://github.com/GregoireF/kiwa/releases) also has shell and PowerShell
-installers, archives for 7 platforms, an SBOM and build provenance.
+installers, archives for 7 platforms, an SBOM and build provenance. The
+[tap's catalog page](https://gregoiref.github.io/homebrew-tap/kiwa/) lists every package manager
+that serves kiwa (Homebrew, Scoop, WinGet, Nix, aqua) and how to verify a download.
 
 The program is `kiwa`, and every channel above also installs the short name `kw`, used in this
 documentation. Linux distribution packages will install `kiwa` only, because Debian's `kworkflow`
